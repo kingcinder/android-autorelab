@@ -1,8 +1,19 @@
+# Python
 .venv/
-.pytest_cache/
 __pycache__/
-.state/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime / generated
 runs/
 tmp-prompts/
-src/android_autorelab.egg-info/
-*.pyc
+*.log
+*.pid
+
+# Tooling output
+artifacts/
+checkpoints/
+
+# OS/editor junk
+.DS_Store

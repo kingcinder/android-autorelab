@@ -1,0 +1,4 @@
+[console_scripts]
+agencyctl = arelab.cli:main
+arelab = arelab.cli:main
+legionctl = arelab.cli:main

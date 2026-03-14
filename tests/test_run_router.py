@@ -36,3 +36,20 @@ def test_default_llama_bin_uses_tool_override(monkeypatch, tmp_path: Path) -> No
     (config_dir / "policies.yaml").write_text("{}\n", encoding="utf-8")
     (workflows_dir / "agency.yaml").write_text("router: {}\nroles: {}\npolicies: {}\n", encoding="utf-8")
     assert default_llama_bin(repo_root, "agency") == "/tmp/custom-llama-server"
+
+
+def test_default_llama_bin_uses_local_override(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("ARELAB_LLAMA_SERVER", raising=False)
+    repo_root = tmp_path
+    config_dir = repo_root / "config"
+    workflows_dir = config_dir / "workflows"
+    workflows_dir.mkdir(parents=True)
+    (config_dir / "tools.yaml").write_text("overrides: {}\n", encoding="utf-8")
+    (config_dir / "models.yaml").write_text("roles: {}\n", encoding="utf-8")
+    (config_dir / "policies.yaml").write_text("{}\n", encoding="utf-8")
+    (config_dir / "local-overrides.yaml").write_text(
+        "tools:\n  overrides:\n    llama_server: /tmp/local-llama-server\n",
+        encoding="utf-8",
+    )
+    (workflows_dir / "agency.yaml").write_text("router: {}\nroles: {}\npolicies: {}\n", encoding="utf-8")
+    assert default_llama_bin(repo_root, "agency") == "/tmp/local-llama-server"

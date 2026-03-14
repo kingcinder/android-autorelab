@@ -20,6 +20,17 @@ def load_yaml(path: Path) -> dict[str, Any]:
     return payload
 
 
+def merge_yaml(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(base)
+    for key, value in override.items():
+        current = merged.get(key)
+        if isinstance(current, dict) and isinstance(value, dict):
+            merged[key] = merge_yaml(current, value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def _expand_pathlike(value: str | None, repo_root: Path) -> str | None:
     if not value:
         return value
@@ -68,10 +79,12 @@ class Settings:
     @classmethod
     def load(cls, repo_root: Path, workflow: str = "default") -> "Settings":
         config_root = repo_root / "config"
-        models = load_yaml(config_root / "models.yaml")
-        tools = load_yaml(config_root / "tools.yaml")
-        policies = load_yaml(config_root / "policies.yaml")
-        workflow_config = load_yaml(config_root / "workflows" / f"{workflow}.yaml")
+        local_overrides = load_yaml(config_root / "local-overrides.yaml")
+        models = merge_yaml(load_yaml(config_root / "models.yaml"), local_overrides.get("models", {}))
+        tools = merge_yaml(load_yaml(config_root / "tools.yaml"), local_overrides.get("tools", {}))
+        policies = merge_yaml(load_yaml(config_root / "policies.yaml"), local_overrides.get("policies", {}))
+        workflow_overrides = (local_overrides.get("workflows", {}) or {}).get(workflow, {})
+        workflow_config = merge_yaml(load_yaml(config_root / "workflows" / f"{workflow}.yaml"), workflow_overrides)
         tool_overrides = {
             key: _expand_pathlike(value, repo_root) if isinstance(value, str) else value
             for key, value in tools.get("overrides", {}).items()

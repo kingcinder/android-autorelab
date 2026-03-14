@@ -1,2 +1,1 @@
-overrides:
-  llama_server: /home/oem/vulkan-agent-stack/llama.cpp-upstream/build/bin/llama-server
+overrides: {}

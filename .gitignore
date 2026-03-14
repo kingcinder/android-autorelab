@@ -10,6 +10,7 @@ runs/
 tmp-prompts/
 *.log
 *.pid
+config/local-overrides.yaml
 
 # Tooling output
 artifacts/

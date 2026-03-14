@@ -1,0 +1,1281 @@
+{
+  "analyses": [
+    {
+      "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+      "cfg_summary": {
+        "available": true,
+        "function_count": 48,
+        "functions": {
+          "UnresolvableCallTarget": {
+            "address": "0x601058",
+            "block_addrs": [
+              "0x601058"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "UnresolvableJumpTarget": {
+            "address": "0x601050",
+            "block_addrs": [
+              "0x601050"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "__do_global_dtors_aux": {
+            "address": "0x4011e0",
+            "block_addrs": [
+              "0x4011e0",
+              "0x4011ed",
+              "0x401200",
+              "0x4011f6"
+            ],
+            "edges": 4,
+            "nodes": 4
+          },
+          "__libc_start_main": {
+            "address": "0x500000",
+            "block_addrs": [
+              "0x500000"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "_dl_relocate_static_pie": {
+            "address": "0x401160",
+            "block_addrs": [
+              "0x401160"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "_fini": {
+            "address": "0x4013d8",
+            "block_addrs": [
+              "0x4013d8"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "_init": {
+            "address": "0x401000",
+            "block_addrs": [
+              "0x401000",
+              "0x401016",
+              "0x401014"
+            ],
+            "edges": 4,
+            "nodes": 3
+          },
+          "_start": {
+            "address": "0x401130",
+            "block_addrs": [
+              "0x401130"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "atoi": {
+            "address": "0x500040",
+            "block_addrs": [
+              "0x500040"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "check_admin_token": {
+            "address": "0x401216",
+            "block_addrs": [
+              "0x401216",
+              "0x40123f",
+              "0x401250",
+              "0x40125f",
+              "0x401265",
+              "0x40126b",
+              "0x401272",
+              "0x401277"
+            ],
+            "edges": 12,
+            "nodes": 8
+          },
+          "deregister_tm_clones": {
+            "address": "0x401170",
+            "block_addrs": [
+              "0x401170",
+              "0x401190",
+              "0x40117d",
+              "0x401187",
+              "0x40118e"
+            ],
+            "edges": 6,
+            "nodes": 5
+          },
+          "frame_dummy": {
+            "address": "0x401210",
+            "block_addrs": [
+              "0x401210"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "free": {
+            "address": "0x500008",
+            "block_addrs": [
+              "0x500008"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "main": {
+            "address": "0x401314",
+            "block_addrs": [
+              "0x401314",
+              "0x40132e",
+              "0x401338",
+              "0x40133f",
+              "0x401349",
+              "0x401353",
+              "0x40135a",
+              "0x401364",
+              "0x40136e",
+              "0x401375",
+              "0x401391",
+              "0x4013a0",
+              "0x4013ae",
+              "0x4013cb"
+            ],
+            "edges": 20,
+            "nodes": 14
+          },
+          "malloc": {
+            "address": "0x500038",
+            "block_addrs": [
+              "0x500038"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "memset": {
+            "address": "0x500028",
+            "block_addrs": [
+              "0x500028"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "multiply_count": {
+            "address": "0x4012a5",
+            "block_addrs": [
+              "0x4012a5",
+              "0x4012c1",
+              "0x4012da",
+              "0x4012e5",
+              "0x4012ec",
+              "0x401312",
+              "0x401303",
+              "0x40130f"
+            ],
+            "edges": 12,
+            "nodes": 8
+          },
+          "printf": {
+            "address": "0x500020",
+            "block_addrs": [
+              "0x500020"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "puts": {
+            "address": "0x500018",
+            "block_addrs": [
+              "0x500018"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "register_tm_clones": {
+            "address": "0x4011a0",
+            "block_addrs": [
+              "0x4011a0",
+              "0x4011d0",
+              "0x4011bf",
+              "0x4011c9"
+            ],
+            "edges": 5,
+            "nodes": 4
+          },
+          "strcmp": {
+            "address": "0x500030",
+            "block_addrs": [
+              "0x500030"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "strcpy": {
+            "address": "0x500010",
+            "block_addrs": [
+              "0x500010"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "sub_401020": {
+            "address": "0x401020",
+            "block_addrs": [
+              "0x401020"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "sub_40102c": {
+            "address": "0x40102c",
+            "block_addrs": [
+              "0x40102c"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401030": {
+            "address": "0x401030",
+            "block_addrs": [
+              "0x401030"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40103e": {
+            "address": "0x40103e",
+            "block_addrs": [
+              "0x40103e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401040": {
+            "address": "0x401040",
+            "block_addrs": [
+              "0x401040"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40104e": {
+            "address": "0x40104e",
+            "block_addrs": [
+              "0x40104e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401050": {
+            "address": "0x401050",
+            "block_addrs": [
+              "0x401050"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40105e": {
+            "address": "0x40105e",
+            "block_addrs": [
+              "0x40105e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401060": {
+            "address": "0x401060",
+            "block_addrs": [
+              "0x401060"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40106e": {
+            "address": "0x40106e",
+            "block_addrs": [
+              "0x40106e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401070": {
+            "address": "0x401070",
+            "block_addrs": [
+              "0x401070"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40107e": {
+            "address": "0x40107e",
+            "block_addrs": [
+              "0x40107e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401080": {
+            "address": "0x401080",
+            "block_addrs": [
+              "0x401080"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40108e": {
+            "address": "0x40108e",
+            "block_addrs": [
+              "0x40108e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401090": {
+            "address": "0x401090",
+            "block_addrs": [
+              "0x401090"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_40109e": {
+            "address": "0x40109e",
+            "block_addrs": [
+              "0x40109e"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_4010a0": {
+            "address": "0x4010a0",
+            "block_addrs": [
+              "0x4010a0"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_4010ae": {
+            "address": "0x4010ae",
+            "block_addrs": [
+              "0x4010ae"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401155": {
+            "address": "0x401155",
+            "block_addrs": [
+              "0x401155"
+            ],
+            "edges": 0,
+            "nodes": 1
+          },
+          "sub_401156": {
+            "address": "0x401156",
+            "block_addrs": [
+              "0x401156"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401165": {
+            "address": "0x401165",
+            "block_addrs": [
+              "0x401165"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401191": {
+            "address": "0x401191",
+            "block_addrs": [
+              "0x401191"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_4011d1": {
+            "address": "0x4011d1",
+            "block_addrs": [
+              "0x4011d1"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_4011ff": {
+            "address": "0x4011ff",
+            "block_addrs": [
+              "0x4011ff"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "sub_401201": {
+            "address": "0x401201",
+            "block_addrs": [
+              "0x401201"
+            ],
+            "edges": 1,
+            "nodes": 1
+          },
+          "vulnerable_copy": {
+            "address": "0x401279",
+            "block_addrs": [
+              "0x401279",
+              "0x40129c"
+            ],
+            "edges": 2,
+            "nodes": 2
+          }
+        }
+      },
+      "file_output": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=bb71a26ecca612e76077b093d3a927088ba73539, for GNU/Linux 3.2.0, with debug_info, not stripped",
+      "functions": [
+        {
+          "address": "00401000",
+          "assembly_excerpt": "ENDBR64\nSUB RSP,0x8\nMOV RAX,qword ptr [0x00403fe0]\nTEST RAX,RAX\nJZ 0x00401016\nCALL RAX\nADD RSP,0x8\nRET",
+          "cfg_edges": 4,
+          "cfg_nodes": 3,
+          "name": "_init",
+          "notes": [],
+          "pseudocode": "\nint _init(EVP_PKEY_CTX *ctx)\n\n{\n  int iVar1;\n  \n  iVar1 = 0;\n  if (PTR___gmon_start___00403fe0 != (undefined *)0x0) {\n    iVar1 = (*(code *)PTR___gmon_start___00403fe0)();\n  }\n  return iVar1;\n}\n\n",
+          "xref_count": 4
+        },
+        {
+          "address": "00401020",
+          "assembly_excerpt": "PUSH qword ptr [0x00403ff0]\nJMP qword ptr [0x00403ff8]",
+          "cfg_edges": null,
+          "cfg_nodes": null,
+          "name": "FUN_00401020",
+          "notes": [],
+          "pseudocode": "\nvoid FUN_00401020(void)\n\n{\n  (*(code *)PTR_00403ff8)();\n  return;\n}\n\n",
+          "xref_count": 11
+        },
+        {
+          "address": "004010b0",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404000]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "free",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n  (*(code *)PTR_free_00404000)();\n  return;\n}\n\n",
+          "xref_count": 4
+        },
+        {
+          "address": "004010c0",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404008]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "strcpy",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * strcpy(char *__dest,char *__src)\n\n{\n  char *pcVar1;\n  \n  pcVar1 = (char *)(*(code *)PTR_strcpy_00404008)();\n  return pcVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "004010d0",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404010]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "puts",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_puts_00404010)();\n  return iVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "004010e0",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404018]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "printf",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_printf_00404018)();\n  return iVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "004010f0",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404020]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "memset",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * memset(void *__s,int __c,size_t __n)\n\n{\n  void *pvVar1;\n  \n  pvVar1 = (void *)(*(code *)PTR_memset_00404020)();\n  return pvVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "00401100",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404028]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "strcmp",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint strcmp(char *__s1,char *__s2)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_strcmp_00404028)();\n  return iVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "00401110",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404030]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "malloc",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n  void *pvVar1;\n  \n  pvVar1 = (void *)(*(code *)PTR_malloc_00404030)();\n  return pvVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "00401120",
+          "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404038]",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "atoi",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint atoi(char *__nptr)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_atoi_00404038)();\n  return iVar1;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "00401130",
+          "assembly_excerpt": "ENDBR64\nXOR EBP,EBP\nMOV R9,RDX\nPOP RSI\nMOV RDX,RSP\nAND RSP,-0x10\nPUSH RAX\nPUSH RSP\nXOR R8D,R8D\nXOR ECX,ECX\nMOV RDI,0x401314\nCALL qword ptr [0x00403fd8]\nHLT",
+          "cfg_edges": 1,
+          "cfg_nodes": 1,
+          "name": "_start",
+          "notes": [],
+          "pseudocode": "\nvoid processEntry _start(undefined8 param_1,undefined8 param_2)\n\n{\n  undefined1 auStack_8 [8];\n  \n  (*(code *)PTR___libc_start_main_00403fd8)(main,param_2,&stack0x00000008,0,0,param_1,auStack_8);\n  do {\n                    /* WARNING: Do nothing block with infinite loop */\n  } while( true );\n}\n\n",
+          "xref_count": 5
+        },
+        {
+          "address": "00401160",
+          "assembly_excerpt": "ENDBR64\nRET",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "_dl_relocate_static_pie",
+          "notes": [],
+          "pseudocode": "\nvoid _dl_relocate_static_pie(void)\n\n{\n  return;\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "00401170",
+          "assembly_excerpt": "MOV EAX,0x404050\nCMP RAX,0x404050\nJZ 0x00401190\nMOV EAX,0x0\nTEST RAX,RAX\nJZ 0x00401190\nMOV EDI,0x404050\nJMP RAX\nRET",
+          "cfg_edges": 6,
+          "cfg_nodes": 5,
+          "name": "deregister_tm_clones",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Removing unreachable block (ram,0x0040117d) */\n/* WARNING: Removing unreachable block (ram,0x00401187) */\n\nvoid deregister_tm_clones(void)\n\n{\n  return;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "004011a0",
+          "assembly_excerpt": "MOV ESI,0x404050\nSUB RSI,0x404050\nMOV RAX,RSI\nSHR RSI,0x3f\nSAR RAX,0x3\nADD RSI,RAX\nSAR RSI,0x1\nJZ 0x004011d0\nMOV EAX,0x0\nTEST RAX,RAX\nJZ 0x004011d0\nMOV EDI,0x404050\nJMP RAX\nRET",
+          "cfg_edges": 5,
+          "cfg_nodes": 4,
+          "name": "register_tm_clones",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Removing unreachable block (ram,0x004011bf) */\n/* WARNING: Removing unreachable block (ram,0x004011c9) */\n\nvoid register_tm_clones(void)\n\n{\n  return;\n}\n\n",
+          "xref_count": 1
+        },
+        {
+          "address": "004011e0",
+          "assembly_excerpt": "ENDBR64\nCMP byte ptr [0x00404050],0x0\nJNZ 0x00401200\nPUSH RBP\nMOV RBP,RSP\nCALL 0x00401170\nMOV byte ptr [0x00404050],0x1\nPOP RBP\nRET\nRET",
+          "cfg_edges": 4,
+          "cfg_nodes": 4,
+          "name": "__do_global_dtors_aux",
+          "notes": [],
+          "pseudocode": "\nvoid __do_global_dtors_aux(void)\n\n{\n  if (completed_0 == '\\0') {\n    deregister_tm_clones();\n    completed_0 = 1;\n    return;\n  }\n  return;\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00401210",
+          "assembly_excerpt": "ENDBR64\nJMP 0x004011a0",
+          "cfg_edges": 1,
+          "cfg_nodes": 1,
+          "name": "frame_dummy",
+          "notes": [],
+          "pseudocode": "\nvoid frame_dummy(void)\n\n{\n  register_tm_clones();\n  return;\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00401216",
+          "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV dword ptr [RBP + -0x1c],ESI\nMOV RAX,qword ptr [RBP + -0x18]\nLEA RDX,[0x402004]\nMOV RSI,RDX\nMOV RDI,RAX\nCALL 0x00401100\nTEST EAX,EAX\nSETZ AL\nMOVZX EAX,AL\nMOV dword ptr [RBP + -0x4],EAX\nCMP dword ptr [RBP + -0x1c],0x0\nJNZ 0x0040125f\nLEA RAX,[0x40200a]\nMOV RDI,RAX\nCALL 0x004010d0\nCMP dword ptr [RBP + -0x4],0x0\nJNZ 0x0040126b\nCMP dword ptr [RBP + -0x1c],0x0\nJZ 0x00401272\nMOV EAX,0x1",
+          "cfg_edges": 12,
+          "cfg_nodes": 8,
+          "name": "check_admin_token",
+          "notes": [],
+          "pseudocode": "\nint check_admin_token(char *role,int pin_ok)\n\n{\n  int iVar1;\n  int pin_ok_local;\n  char *role_local;\n  int is_admin;\n  \n  iVar1 = strcmp(role,\"admin\");\n  if (pin_ok == 0) {\n    puts(\"pin failed\");\n  }\n  if ((iVar1 == 0) || (pin_ok != 0)) {\n    iVar1 = 1;\n  }\n  else {\n    iVar1 = 0;\n  }\n  return iVar1;\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "00401279",
+          "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV RDX,qword ptr [RBP + -0x18]\nLEA RAX,[RBP + -0x10]\nMOV RSI,RDX\nMOV RDI,RAX\nCALL 0x004010c0\nMOVZX EAX,byte ptr [RBP + -0x10]\nMOVSX EAX,AL\nLEAVE\nRET",
+          "cfg_edges": 2,
+          "cfg_nodes": 2,
+          "name": "vulnerable_copy",
+          "notes": [],
+          "pseudocode": "\nint vulnerable_copy(char *input)\n\n{\n  char *input_local;\n  char buffer [16];\n  \n  strcpy(buffer,input);\n  return (int)buffer[0];\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "004012a5",
+          "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV RAX,qword ptr [RBP + -0x18]\nMOV RDI,RAX\nCALL 0x00401120\nMOV dword ptr [RBP + -0x4],EAX\nMOV EAX,dword ptr [RBP + -0x4]\nSHL EAX,0xc\nMOV dword ptr [RBP + -0x8],EAX\nMOV EAX,dword ptr [RBP + -0x8]\nCDQE\nMOV RDI,RAX\nCALL 0x00401110\nMOV qword ptr [RBP + -0x10],RAX\nCMP qword ptr [RBP + -0x10],0x0\nJNZ 0x004012ec\nMOV EAX,0xffffffff\nJMP 0x00401312\nMOV EAX,dword ptr [RBP + -0x8]\nMOVSXD RDX,EAX\nMOV RAX,qword ptr [RBP + -0x10]\nMOV ESI,0x0",
+          "cfg_edges": 12,
+          "cfg_nodes": 8,
+          "name": "multiply_count",
+          "notes": [],
+          "pseudocode": "\nint multiply_count(char *count_str)\n\n{\n  int iVar1;\n  void *__s;\n  char *count_str_local;\n  char *heap;\n  int bytes;\n  int count;\n  \n  iVar1 = atoi(count_str);\n  iVar1 = iVar1 << 0xc;\n  __s = malloc((long)iVar1);\n  if (__s == (void *)0x0) {\n    iVar1 = -1;\n  }\n  else {\n    memset(__s,0,(long)iVar1);\n    free(__s);\n  }\n  return iVar1;\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "00401314",
+          "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nPUSH RBX\nSUB RSP,0x38\nMOV dword ptr [RBP + -0x34],EDI\nMOV qword ptr [RBP + -0x40],RSI\nCMP dword ptr [RBP + -0x34],0x1\nJLE 0x00401338\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x8]\nJMP 0x0040133f\nLEA RAX,[0x402015]\nMOV qword ptr [RBP + -0x18],RAX\nCMP dword ptr [RBP + -0x34],0x2\nJLE 0x00401353\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x10]\nJMP 0x0040135a\nLEA RAX,[0x40201b]\nMOV qword ptr [RBP + -0x20],RAX\nCMP dword ptr [RBP + -0x34],0x3\nJLE 0x0040136e\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x18]",
+          "cfg_edges": 20,
+          "cfg_nodes": 14,
+          "name": "main",
+          "notes": [],
+          "pseudocode": "\nint main(int argc,char **argv)\n\n{\n  uint uVar1;\n  uint uVar2;\n  uint uVar3;\n  char *role_00;\n  char *input;\n  char *count_str;\n  char **argv_local;\n  int argc_local;\n  int auth;\n  char *count;\n  char *payload;\n  char *role;\n  \n  if (argc < 2) {\n    role_00 = \"guest\";\n  }\n  else {\n    role_00 = argv[1];\n  }\n  if (argc < 3) {\n    input = \"hello\";\n  }\n  else {\n    input = argv[2];\n  }\n  if (argc < 4) {\n    count_str = \"2\";\n  }\n  else {\n    count_str = argv[3];\n  }\n  uVar1 = check_admin_token(role_00,(uint)(4 < argc));\n  uVar2 = multiply_count(count_str);\n  uVar3 = vulnerable_copy(input);\n  printf(\"auth=%d copy=%d bytes=%d\\n\",(ulong)uVar1,(ulong)uVar3,(ulong)uVar2);\n  return 0;\n}\n\n",
+          "xref_count": 4
+        },
+        {
+          "address": "004013d8",
+          "assembly_excerpt": "ENDBR64\nSUB RSP,0x8\nADD RSP,0x8\nRET",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "_fini",
+          "notes": [],
+          "pseudocode": "\nvoid _fini(void)\n\n{\n  return;\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "00405000",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "free",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* free@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405008",
+          "assembly_excerpt": "",
+          "cfg_edges": 1,
+          "cfg_nodes": 1,
+          "name": "__libc_start_main",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __libc_start_main(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __libc_start_main@GLIBC_2.34 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405010",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "strcpy",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * strcpy(char *__dest,char *__src)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* strcpy@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405018",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "puts",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* puts@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405020",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "printf",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* printf@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405028",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "memset",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * memset(void *__s,int __c,size_t __n)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* memset@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405030",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "strcmp",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint strcmp(char *__s1,char *__s2)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* strcmp@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405038",
+          "assembly_excerpt": "",
+          "cfg_edges": null,
+          "cfg_nodes": null,
+          "name": "__gmon_start__",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __gmon_start__(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n  halt_baddata();\n}\n\n",
+          "xref_count": 3
+        },
+        {
+          "address": "00405040",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "malloc",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* malloc@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        },
+        {
+          "address": "00405048",
+          "assembly_excerpt": "",
+          "cfg_edges": 0,
+          "cfg_nodes": 1,
+          "name": "atoi",
+          "notes": [],
+          "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint atoi(char *__nptr)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* atoi@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+          "xref_count": 2
+        }
+      ],
+      "ghidra_summary": {
+        "functions": [
+          {
+            "address": "00401000",
+            "assembly_excerpt": "ENDBR64\nSUB RSP,0x8\nMOV RAX,qword ptr [0x00403fe0]\nTEST RAX,RAX\nJZ 0x00401016\nCALL RAX\nADD RSP,0x8\nRET",
+            "name": "_init",
+            "pseudocode": "\nint _init(EVP_PKEY_CTX *ctx)\n\n{\n  int iVar1;\n  \n  iVar1 = 0;\n  if (PTR___gmon_start___00403fe0 != (undefined *)0x0) {\n    iVar1 = (*(code *)PTR___gmon_start___00403fe0)();\n  }\n  return iVar1;\n}\n\n",
+            "xref_count": 4
+          },
+          {
+            "address": "00401020",
+            "assembly_excerpt": "PUSH qword ptr [0x00403ff0]\nJMP qword ptr [0x00403ff8]",
+            "name": "FUN_00401020",
+            "pseudocode": "\nvoid FUN_00401020(void)\n\n{\n  (*(code *)PTR_00403ff8)();\n  return;\n}\n\n",
+            "xref_count": 11
+          },
+          {
+            "address": "004010b0",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404000]",
+            "name": "free",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n  (*(code *)PTR_free_00404000)();\n  return;\n}\n\n",
+            "xref_count": 4
+          },
+          {
+            "address": "004010c0",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404008]",
+            "name": "strcpy",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * strcpy(char *__dest,char *__src)\n\n{\n  char *pcVar1;\n  \n  pcVar1 = (char *)(*(code *)PTR_strcpy_00404008)();\n  return pcVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "004010d0",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404010]",
+            "name": "puts",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_puts_00404010)();\n  return iVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "004010e0",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404018]",
+            "name": "printf",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_printf_00404018)();\n  return iVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "004010f0",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404020]",
+            "name": "memset",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * memset(void *__s,int __c,size_t __n)\n\n{\n  void *pvVar1;\n  \n  pvVar1 = (void *)(*(code *)PTR_memset_00404020)();\n  return pvVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "00401100",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404028]",
+            "name": "strcmp",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint strcmp(char *__s1,char *__s2)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_strcmp_00404028)();\n  return iVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "00401110",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404030]",
+            "name": "malloc",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n  void *pvVar1;\n  \n  pvVar1 = (void *)(*(code *)PTR_malloc_00404030)();\n  return pvVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "00401120",
+            "assembly_excerpt": "ENDBR64\nJMP qword ptr [0x00404038]",
+            "name": "atoi",
+            "pseudocode": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint atoi(char *__nptr)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_atoi_00404038)();\n  return iVar1;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "00401130",
+            "assembly_excerpt": "ENDBR64\nXOR EBP,EBP\nMOV R9,RDX\nPOP RSI\nMOV RDX,RSP\nAND RSP,-0x10\nPUSH RAX\nPUSH RSP\nXOR R8D,R8D\nXOR ECX,ECX\nMOV RDI,0x401314\nCALL qword ptr [0x00403fd8]\nHLT",
+            "name": "_start",
+            "pseudocode": "\nvoid processEntry _start(undefined8 param_1,undefined8 param_2)\n\n{\n  undefined1 auStack_8 [8];\n  \n  (*(code *)PTR___libc_start_main_00403fd8)(main,param_2,&stack0x00000008,0,0,param_1,auStack_8);\n  do {\n                    /* WARNING: Do nothing block with infinite loop */\n  } while( true );\n}\n\n",
+            "xref_count": 5
+          },
+          {
+            "address": "00401160",
+            "assembly_excerpt": "ENDBR64\nRET",
+            "name": "_dl_relocate_static_pie",
+            "pseudocode": "\nvoid _dl_relocate_static_pie(void)\n\n{\n  return;\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "00401170",
+            "assembly_excerpt": "MOV EAX,0x404050\nCMP RAX,0x404050\nJZ 0x00401190\nMOV EAX,0x0\nTEST RAX,RAX\nJZ 0x00401190\nMOV EDI,0x404050\nJMP RAX\nRET",
+            "name": "deregister_tm_clones",
+            "pseudocode": "\n/* WARNING: Removing unreachable block (ram,0x0040117d) */\n/* WARNING: Removing unreachable block (ram,0x00401187) */\n\nvoid deregister_tm_clones(void)\n\n{\n  return;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "004011a0",
+            "assembly_excerpt": "MOV ESI,0x404050\nSUB RSI,0x404050\nMOV RAX,RSI\nSHR RSI,0x3f\nSAR RAX,0x3\nADD RSI,RAX\nSAR RSI,0x1\nJZ 0x004011d0\nMOV EAX,0x0\nTEST RAX,RAX\nJZ 0x004011d0\nMOV EDI,0x404050\nJMP RAX\nRET",
+            "name": "register_tm_clones",
+            "pseudocode": "\n/* WARNING: Removing unreachable block (ram,0x004011bf) */\n/* WARNING: Removing unreachable block (ram,0x004011c9) */\n\nvoid register_tm_clones(void)\n\n{\n  return;\n}\n\n",
+            "xref_count": 1
+          },
+          {
+            "address": "004011e0",
+            "assembly_excerpt": "ENDBR64\nCMP byte ptr [0x00404050],0x0\nJNZ 0x00401200\nPUSH RBP\nMOV RBP,RSP\nCALL 0x00401170\nMOV byte ptr [0x00404050],0x1\nPOP RBP\nRET\nRET",
+            "name": "__do_global_dtors_aux",
+            "pseudocode": "\nvoid __do_global_dtors_aux(void)\n\n{\n  if (completed_0 == '\\0') {\n    deregister_tm_clones();\n    completed_0 = 1;\n    return;\n  }\n  return;\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00401210",
+            "assembly_excerpt": "ENDBR64\nJMP 0x004011a0",
+            "name": "frame_dummy",
+            "pseudocode": "\nvoid frame_dummy(void)\n\n{\n  register_tm_clones();\n  return;\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00401216",
+            "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV dword ptr [RBP + -0x1c],ESI\nMOV RAX,qword ptr [RBP + -0x18]\nLEA RDX,[0x402004]\nMOV RSI,RDX\nMOV RDI,RAX\nCALL 0x00401100\nTEST EAX,EAX\nSETZ AL\nMOVZX EAX,AL\nMOV dword ptr [RBP + -0x4],EAX\nCMP dword ptr [RBP + -0x1c],0x0\nJNZ 0x0040125f\nLEA RAX,[0x40200a]\nMOV RDI,RAX\nCALL 0x004010d0\nCMP dword ptr [RBP + -0x4],0x0\nJNZ 0x0040126b\nCMP dword ptr [RBP + -0x1c],0x0\nJZ 0x00401272\nMOV EAX,0x1",
+            "name": "check_admin_token",
+            "pseudocode": "\nint check_admin_token(char *role,int pin_ok)\n\n{\n  int iVar1;\n  int pin_ok_local;\n  char *role_local;\n  int is_admin;\n  \n  iVar1 = strcmp(role,\"admin\");\n  if (pin_ok == 0) {\n    puts(\"pin failed\");\n  }\n  if ((iVar1 == 0) || (pin_ok != 0)) {\n    iVar1 = 1;\n  }\n  else {\n    iVar1 = 0;\n  }\n  return iVar1;\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "00401279",
+            "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV RDX,qword ptr [RBP + -0x18]\nLEA RAX,[RBP + -0x10]\nMOV RSI,RDX\nMOV RDI,RAX\nCALL 0x004010c0\nMOVZX EAX,byte ptr [RBP + -0x10]\nMOVSX EAX,AL\nLEAVE\nRET",
+            "name": "vulnerable_copy",
+            "pseudocode": "\nint vulnerable_copy(char *input)\n\n{\n  char *input_local;\n  char buffer [16];\n  \n  strcpy(buffer,input);\n  return (int)buffer[0];\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "004012a5",
+            "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nSUB RSP,0x20\nMOV qword ptr [RBP + -0x18],RDI\nMOV RAX,qword ptr [RBP + -0x18]\nMOV RDI,RAX\nCALL 0x00401120\nMOV dword ptr [RBP + -0x4],EAX\nMOV EAX,dword ptr [RBP + -0x4]\nSHL EAX,0xc\nMOV dword ptr [RBP + -0x8],EAX\nMOV EAX,dword ptr [RBP + -0x8]\nCDQE\nMOV RDI,RAX\nCALL 0x00401110\nMOV qword ptr [RBP + -0x10],RAX\nCMP qword ptr [RBP + -0x10],0x0\nJNZ 0x004012ec\nMOV EAX,0xffffffff\nJMP 0x00401312\nMOV EAX,dword ptr [RBP + -0x8]\nMOVSXD RDX,EAX\nMOV RAX,qword ptr [RBP + -0x10]\nMOV ESI,0x0",
+            "name": "multiply_count",
+            "pseudocode": "\nint multiply_count(char *count_str)\n\n{\n  int iVar1;\n  void *__s;\n  char *count_str_local;\n  char *heap;\n  int bytes;\n  int count;\n  \n  iVar1 = atoi(count_str);\n  iVar1 = iVar1 << 0xc;\n  __s = malloc((long)iVar1);\n  if (__s == (void *)0x0) {\n    iVar1 = -1;\n  }\n  else {\n    memset(__s,0,(long)iVar1);\n    free(__s);\n  }\n  return iVar1;\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "00401314",
+            "assembly_excerpt": "ENDBR64\nPUSH RBP\nMOV RBP,RSP\nPUSH RBX\nSUB RSP,0x38\nMOV dword ptr [RBP + -0x34],EDI\nMOV qword ptr [RBP + -0x40],RSI\nCMP dword ptr [RBP + -0x34],0x1\nJLE 0x00401338\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x8]\nJMP 0x0040133f\nLEA RAX,[0x402015]\nMOV qword ptr [RBP + -0x18],RAX\nCMP dword ptr [RBP + -0x34],0x2\nJLE 0x00401353\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x10]\nJMP 0x0040135a\nLEA RAX,[0x40201b]\nMOV qword ptr [RBP + -0x20],RAX\nCMP dword ptr [RBP + -0x34],0x3\nJLE 0x0040136e\nMOV RAX,qword ptr [RBP + -0x40]\nMOV RAX,qword ptr [RAX + 0x18]",
+            "name": "main",
+            "pseudocode": "\nint main(int argc,char **argv)\n\n{\n  uint uVar1;\n  uint uVar2;\n  uint uVar3;\n  char *role_00;\n  char *input;\n  char *count_str;\n  char **argv_local;\n  int argc_local;\n  int auth;\n  char *count;\n  char *payload;\n  char *role;\n  \n  if (argc < 2) {\n    role_00 = \"guest\";\n  }\n  else {\n    role_00 = argv[1];\n  }\n  if (argc < 3) {\n    input = \"hello\";\n  }\n  else {\n    input = argv[2];\n  }\n  if (argc < 4) {\n    count_str = \"2\";\n  }\n  else {\n    count_str = argv[3];\n  }\n  uVar1 = check_admin_token(role_00,(uint)(4 < argc));\n  uVar2 = multiply_count(count_str);\n  uVar3 = vulnerable_copy(input);\n  printf(\"auth=%d copy=%d bytes=%d\\n\",(ulong)uVar1,(ulong)uVar3,(ulong)uVar2);\n  return 0;\n}\n\n",
+            "xref_count": 4
+          },
+          {
+            "address": "004013d8",
+            "assembly_excerpt": "ENDBR64\nSUB RSP,0x8\nADD RSP,0x8\nRET",
+            "name": "_fini",
+            "pseudocode": "\nvoid _fini(void)\n\n{\n  return;\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "00405000",
+            "assembly_excerpt": "",
+            "name": "free",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* free@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405008",
+            "assembly_excerpt": "",
+            "name": "__libc_start_main",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __libc_start_main(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __libc_start_main@GLIBC_2.34 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405010",
+            "assembly_excerpt": "",
+            "name": "strcpy",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * strcpy(char *__dest,char *__src)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* strcpy@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405018",
+            "assembly_excerpt": "",
+            "name": "puts",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* puts@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405020",
+            "assembly_excerpt": "",
+            "name": "printf",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* printf@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405028",
+            "assembly_excerpt": "",
+            "name": "memset",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * memset(void *__s,int __c,size_t __n)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* memset@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405030",
+            "assembly_excerpt": "",
+            "name": "strcmp",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint strcmp(char *__s1,char *__s2)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* strcmp@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405038",
+            "assembly_excerpt": "",
+            "name": "__gmon_start__",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __gmon_start__(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n  halt_baddata();\n}\n\n",
+            "xref_count": 3
+          },
+          {
+            "address": "00405040",
+            "assembly_excerpt": "",
+            "name": "malloc",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* malloc@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          },
+          {
+            "address": "00405048",
+            "assembly_excerpt": "",
+            "name": "atoi",
+            "pseudocode": "\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint atoi(char *__nptr)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* atoi@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+            "xref_count": 2
+          }
+        ],
+        "language": "x86:LE:64:default",
+        "program": "swap-demo-x86_64"
+      },
+      "heuristics": [
+        {
+          "class": "CWE-287-like improper authentication / fail-open decision",
+          "confidence": 0.72,
+          "evidence": {
+            "address": "00401216",
+            "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+            "cfg_summary": "nodes=8 edges=12",
+            "decompile_excerpt": "\nint check_admin_token(char *role,int pin_ok)\n\n{\n  int iVar1;\n  int pin_ok_local;\n  char *role_local;\n  int is_admin;\n  \n  iVar1 = strcmp(role,\"admin\");\n  if (pin_ok == 0) {\n    puts(\"pin failed\");\n  }\n  if ((iVar1 == 0) || (pin_ok != 0)) {\n    iVar1 = 1;\n  }\n  else {\n    iVar1 = 0;\n  }\n  return iVar1;\n}\n\n",
+            "function": "check_admin_token"
+          },
+          "id": "",
+          "impact": "high",
+          "reachability": "Authentication logic appears to reconverge success and failure conditions into a permissive result for reachable caller-controlled state.",
+          "remediation_intent": "Separate failure handling from the success path, require all auth predicates to pass, and add explicit deny-by-default returns.",
+          "sources": [
+            "heuristic"
+          ],
+          "title": "Potential fail-open authorization logic in check_admin_token",
+          "verification_tests": "Add tests for invalid credentials and partial-auth states to ensure every failure path returns denial."
+        },
+        {
+          "class": "CWE-120-like stack/heap buffer misuse",
+          "confidence": 0.67,
+          "evidence": {
+            "address": "00401279",
+            "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+            "cfg_summary": "nodes=2 edges=2",
+            "decompile_excerpt": "\nint vulnerable_copy(char *input)\n\n{\n  char *input_local;\n  char buffer [16];\n  \n  strcpy(buffer,input);\n  return (int)buffer[0];\n}\n\n",
+            "function": "vulnerable_copy"
+          },
+          "id": "",
+          "impact": "high",
+          "reachability": "User-controlled bytes appear to flow into unsafe string-copy primitives reachable from the analyzed binary entrypoints.",
+          "remediation_intent": "Replace unsafe copies with length-checked APIs, validate input size before writes, and add negative-path tests for oversized data.",
+          "sources": [
+            "heuristic"
+          ],
+          "title": "Potential unsafe buffer handling in vulnerable_copy",
+          "verification_tests": "Add unit tests with oversized strings and assert rejection or truncation without memory corruption."
+        },
+        {
+          "class": "CWE-190-like integer overflow influencing memory allocation",
+          "confidence": 0.58,
+          "evidence": {
+            "address": "004012a5",
+            "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+            "cfg_summary": "nodes=8 edges=12",
+            "decompile_excerpt": "\nint multiply_count(char *count_str)\n\n{\n  int iVar1;\n  void *__s;\n  char *count_str_local;\n  char *heap;\n  int bytes;\n  int count;\n  \n  iVar1 = atoi(count_str);\n  iVar1 = iVar1 << 0xc;\n  __s = malloc((long)iVar1);\n  if (__s == (void *)0x0) {\n    iVar1 = -1;\n  }\n  else {\n    memset(__s,0,(long)iVar1);\n    free(__s);\n  }\n  return iVar1;\n}\n\n",
+            "function": "multiply_count"
+          },
+          "id": "",
+          "impact": "med",
+          "reachability": "External numeric fields appear to influence multiplication or size calculations before allocation or copy operations.",
+          "remediation_intent": "Introduce checked arithmetic for size calculations and reject values that overflow or exceed expected bounds before allocation.",
+          "sources": [
+            "heuristic"
+          ],
+          "title": "Potential arithmetic-driven allocation bug in multiply_count",
+          "verification_tests": "Add boundary tests covering large count values and assert checked-failure behavior instead of wrapped sizes."
+        }
+      ],
+      "imports": [
+        "__gmon_start__",
+        "__libc_start_main",
+        "atoi",
+        "free",
+        "malloc",
+        "memset",
+        "printf",
+        "puts",
+        "strcmp",
+        "strcpy"
+      ],
+      "sha256": "14fddfbd822c5f27de9f82f844c7abe0f8edb9362715f4005e70625cc6cd192b",
+      "strings": [
+        "/lib64/ld-linux-x86-64.so.2",
+        "strcpy",
+        "puts",
+        "free",
+        "atoi",
+        "malloc",
+        "__libc_start_main",
+        "memset",
+        "printf",
+        "strcmp",
+        "libc.so.6",
+        "GLIBC_2.34",
+        "GLIBC_2.2.5",
+        "__gmon_start__",
+        "PTE1",
+        "H=P@@",
+        "admin",
+        "pin failed",
+        "guest",
+        "hello",
+        "auth=%d copy=%d bytes=%d",
+        "9*3$\"",
+        "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+        "size_t",
+        "multiply_count",
+        "GNU C17 13.3.0 -mtune=generic -march=x86-64 -g -O0 -fno-stack-protector -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection",
+        "unsigned char",
+        "input",
+        "strcpy",
+        "short unsigned int",
+        "memset",
+        "main",
+        "count_str",
+        "long long unsigned int",
+        "heap",
+        "auth",
+        "check_admin_token",
+        "payload",
+        "strcmp",
+        "free",
+        "long long int",
+        "printf",
+        "is_admin",
+        "role",
+        "short int",
+        "buffer",
+        "argv",
+        "pin_ok",
+        "bytes",
+        "puts",
+        "vulnerable_copy",
+        "atoi",
+        "malloc",
+        "argc",
+        "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap_demo.c",
+        "/home/oem/android-autorelab",
+        "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs",
+        "/usr/include",
+        "/usr/lib/gcc/x86_64-linux-gnu/13/include",
+        "stdio.h",
+        "string.h",
+        "stdlib.h",
+        "stddef.h",
+        "crt1.o",
+        "__abi_tag",
+        "crtstuff.c",
+        "deregister_tm_clones",
+        "__do_global_dtors_aux",
+        "completed.0",
+        "__do_global_dtors_aux_fini_array_entry",
+        "frame_dummy",
+        "__frame_dummy_init_array_entry",
+        "swap_demo.c",
+        "check_admin_token",
+        "vulnerable_copy",
+        "multiply_count",
+        "__FRAME_END__",
+        "_DYNAMIC",
+        "__GNU_EH_FRAME_HDR",
+        "_GLOBAL_OFFSET_TABLE_",
+        "free@GLIBC_2.2.5",
+        "__libc_start_main@GLIBC_2.34",
+        "strcpy@GLIBC_2.2.5",
+        "puts@GLIBC_2.2.5",
+        "_edata",
+        "_fini",
+        "printf@GLIBC_2.2.5",
+        "memset@GLIBC_2.2.5",
+        "__data_start",
+        "strcmp@GLIBC_2.2.5",
+        "__gmon_start__",
+        "__dso_handle",
+        "_IO_stdin_used",
+        "malloc@GLIBC_2.2.5",
+        "_end",
+        "_dl_relocate_static_pie",
+        "__bss_start",
+        "main",
+        "atoi@GLIBC_2.2.5",
+        "__TMC_END__",
+        "_init",
+        ".symtab",
+        ".strtab",
+        ".shstrtab",
+        ".interp",
+        ".note.gnu.property",
+        ".note.gnu.build-id",
+        ".note.ABI-tag",
+        ".gnu.hash",
+        ".dynsym",
+        ".dynstr",
+        ".gnu.version",
+        ".gnu.version_r",
+        ".rela.dyn",
+        ".rela.plt",
+        ".init",
+        ".plt.sec",
+        ".text",
+        ".fini",
+        ".rodata",
+        ".eh_frame_hdr",
+        ".eh_frame",
+        ".init_array",
+        ".fini_array",
+        ".dynamic",
+        ".got",
+        ".got.plt",
+        ".data",
+        ".bss",
+        ".comment",
+        ".debug_aranges",
+        ".debug_info",
+        ".debug_abbrev",
+        ".debug_line",
+        ".debug_str",
+        ".debug_line_str"
+      ]
+    }
+  ],
+  "artifacts": {
+    "created_at": "2026-03-13T09:55:00+00:00",
+    "input_path": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs",
+    "nodes": [
+      {
+        "derived_from": [],
+        "kind": "file",
+        "metadata": {},
+        "mime": null,
+        "path": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+        "sha256": "14fddfbd822c5f27de9f82f844c7abe0f8edb9362715f4005e70625cc6cd192b",
+        "size": 18864,
+        "source": "input"
+      },
+      {
+        "derived_from": [],
+        "kind": "file",
+        "metadata": {},
+        "mime": "text/x-csrc",
+        "path": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap_demo.c",
+        "sha256": "1f83ac7da780b6495b7e37a7f6adc74b9511e113e1c8d343612b0e37631db08d",
+        "size": 998,
+        "source": "input"
+      }
+    ]
+  },
+  "generated_at": "2026-03-13T09:55:08+00:00",
+  "run_id": "20260313-095500-193657",
+  "summary": {
+    "artifact_count": 2,
+    "binary_count": 1,
+    "swap_count": 3
+  },
+  "swap_candidates": [
+    {
+      "class": "CWE-287-like improper authentication / fail-open decision",
+      "confidence": 0.72,
+      "evidence": {
+        "address": "00401216",
+        "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+        "cfg_summary": "nodes=8 edges=12",
+        "decompile_excerpt": "\nint check_admin_token(char *role,int pin_ok)\n\n{\n  int iVar1;\n  int pin_ok_local;\n  char *role_local;\n  int is_admin;\n  \n  iVar1 = strcmp(role,\"admin\");\n  if (pin_ok == 0) {\n    puts(\"pin failed\");\n  }\n  if ((iVar1 == 0) || (pin_ok != 0)) {\n    iVar1 = 1;\n  }\n  else {\n    iVar1 = 0;\n  }\n  return iVar1;\n}\n\n",
+        "function": "check_admin_token"
+      },
+      "id": "SWAP-001",
+      "impact": "high",
+      "reachability": "Authentication logic appears to reconverge success and failure conditions into a permissive result for reachable caller-controlled state.",
+      "remediation_intent": "Separate failure handling from the success path, require all auth predicates to pass, and add explicit deny-by-default returns.",
+      "sources": [
+        "heuristic"
+      ],
+      "title": "Potential fail-open authorization logic in check_admin_token",
+      "verification_tests": "Add tests for invalid credentials and partial-auth states to ensure every failure path returns denial."
+    },
+    {
+      "class": "CWE-120-like stack/heap buffer misuse",
+      "confidence": 0.67,
+      "evidence": {
+        "address": "00401279",
+        "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+        "cfg_summary": "nodes=2 edges=2",
+        "decompile_excerpt": "\nint vulnerable_copy(char *input)\n\n{\n  char *input_local;\n  char buffer [16];\n  \n  strcpy(buffer,input);\n  return (int)buffer[0];\n}\n\n",
+        "function": "vulnerable_copy"
+      },
+      "id": "SWAP-002",
+      "impact": "high",
+      "reachability": "User-controlled bytes appear to flow into unsafe string-copy primitives reachable from the analyzed binary entrypoints.",
+      "remediation_intent": "Replace unsafe copies with length-checked APIs, validate input size before writes, and add negative-path tests for oversized data.",
+      "sources": [
+        "heuristic"
+      ],
+      "title": "Potential unsafe buffer handling in vulnerable_copy",
+      "verification_tests": "Add unit tests with oversized strings and assert rejection or truncation without memory corruption."
+    },
+    {
+      "class": "CWE-190-like integer overflow influencing memory allocation",
+      "confidence": 0.58,
+      "evidence": {
+        "address": "004012a5",
+        "binary": "/home/oem/android-autorelab/runs/default/20260313-095500-193657/work/demo-inputs/swap-demo-x86_64",
+        "cfg_summary": "nodes=8 edges=12",
+        "decompile_excerpt": "\nint multiply_count(char *count_str)\n\n{\n  int iVar1;\n  void *__s;\n  char *count_str_local;\n  char *heap;\n  int bytes;\n  int count;\n  \n  iVar1 = atoi(count_str);\n  iVar1 = iVar1 << 0xc;\n  __s = malloc((long)iVar1);\n  if (__s == (void *)0x0) {\n    iVar1 = -1;\n  }\n  else {\n    memset(__s,0,(long)iVar1);\n    free(__s);\n  }\n  return iVar1;\n}\n\n",
+        "function": "multiply_count"
+      },
+      "id": "SWAP-003",
+      "impact": "med",
+      "reachability": "External numeric fields appear to influence multiplication or size calculations before allocation or copy operations.",
+      "remediation_intent": "Introduce checked arithmetic for size calculations and reject values that overflow or exceed expected bounds before allocation.",
+      "sources": [
+        "heuristic"
+      ],
+      "title": "Potential arithmetic-driven allocation bug in multiply_count",
+      "verification_tests": "Add boundary tests covering large count values and assert checked-failure behavior instead of wrapped sizes."
+    }
+  ]
+}

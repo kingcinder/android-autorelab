@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "android-autorelab"
+version = "0.1.0"
+description = "Local-first Android reverse-engineering lab suite for evidence-backed SWAP reporting."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.115.11",
+  "jinja2==3.1.6",
+  "pydantic==2.11.1",
+  "PyYAML==6.0.2",
+  "uvicorn==0.34.0",
+]
+
+[project.optional-dependencies]
+analysis = [
+  "angr",
+]
+dev = [
+  "pytest==8.3.5",
+]
+
+[project.scripts]
+arelab = "arelab.cli:main"
+agencyctl = "arelab.cli:main"
+legionctl = "arelab.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

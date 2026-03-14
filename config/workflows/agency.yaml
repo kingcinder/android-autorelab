@@ -1,0 +1,59 @@
+name: agency
+mode: serial
+description: The Agency is a serial deep-audit workflow with low model churn and one-heavy-model-at-a-time routing.
+router:
+  host: 127.0.0.1
+  port: 18081
+  base_url: http://127.0.0.1:18081/v1
+  models_dir: models
+  models_max: 1
+  ctx_size: 4096
+  batch_size: 64
+  ubatch_size: 64
+  threads: 6
+  device: none
+  gpu_layers: 0
+  concurrency: 1
+  autoload: false
+  extra_args:
+    - --no-kv-offload
+    - --no-op-offload
+roles:
+  planner: Bootes-Qwen3_Coder-Reasoning.i1-Q4_K_M
+  triage: qwen2.5-coder-1.5b-instruct-q6_k
+  deep: deepseek-coder-7b-instruct-v1.5-imat-Q4_K_M
+  cleanup: qwen2.5-coder-7b-instruct-q4_k_m
+  decompile_refine: LLM4Binary.llm4decompile-9b-v2.Q4_K_S
+  arbiter: Qwen3.5-9B-UD-Q4_K_XL
+pipeline:
+  default_profile: deep
+  refine_limit: 4
+  cfg_shortlist_limit: 16
+  stage_order:
+    - planner
+    - decompile_refine
+    - deep
+    - arbiter
+profiles:
+  fast:
+    reason_roles:
+      - deep
+  deep:
+    reason_roles:
+      - deep
+      - arbiter
+policies:
+  workflow_name: The Agency
+  model_strategy: serial
+  single_heavy_model: true
+  unload_between_stages: true
+  preferred_primary_auditor: deep
+  disabled_models:
+    - OpenAI-20B-NEO-Uncensored2-IQ4_NL
+    - Qwen3.5-9B-Claude-4.6-HighIQ-INSTRUCT-HERETIC-UNCENSORED.i1-Q5_K_S
+    - Qwen3.5-9B-ultra-heretic-Q4_K_M
+exclusive_with: legion
+verify_models:
+  - Bootes-Qwen3_Coder-Reasoning.i1-Q4_K_M
+  - LLM4Binary.llm4decompile-9b-v2.Q4_K_S
+  - deepseek-coder-7b-instruct-v1.5-imat-Q4_K_M

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} · android-autorelab</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="page-shell">
+      <header class="masthead">
+        <div class="masthead-copy">
+          <p class="eyebrow">Android AutoRELab</p>
+          <h1>Autonomous Evidence Dossier</h1>
+          <p class="masthead-summary">Local-first reverse-engineering workflows with preserved tool trails, prompt traces, and fix-oriented SWAP reports.</p>
+        </div>
+        <nav class="masthead-nav">
+          <a href="/runs">Runs</a>
+        </nav>
+      </header>
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="footer-mark">
+        <span>Read-only by default</span>
+        <span>Evidence over conjecture</span>
+        <span>No exploit outputs</span>
+      </footer>
+    </div>
+  </body>
+</html>

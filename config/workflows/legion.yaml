@@ -1,0 +1,57 @@
+name: legion
+mode: parallel
+description: The Legion is a lane-based swarm workflow with consensus merging and router-managed model residency.
+router:
+  host: 127.0.0.1
+  port: 18082
+  base_url: http://127.0.0.1:18082/v1
+  models_dir: models
+  models_max: 3
+  ctx_size: 4096
+  batch_size: 64
+  ubatch_size: 64
+  threads: 6
+  device: none
+  gpu_layers: 0
+  concurrency: 2
+  autoload: false
+  extra_args:
+    - --no-kv-offload
+    - --no-op-offload
+verify:
+  status_timeout_sec: 180
+  settle_seconds: 1
+  rss_growth_limit_mb: 768
+roles:
+  planner: Bootes-Qwen3_Coder-Reasoning.i1-Q4_K_M
+  triage: starcoder2-3b.Q4_K_M
+  deep: deepseek-coder-7b-instruct-v1.5-imat-Q4_K_M
+  cleanup: qwen2.5-coder-7b-instruct-q4_k_m
+  decompile_refine: LLM4Binary.llm4decompile-9b-v2.Q4_K_S
+  clerk: qwen2.5-coder-1.5b-instruct-q6_k
+pipeline:
+  default_profile: overnight
+  refine_limit: 6
+  cfg_shortlist_limit: 32
+profiles:
+  fast:
+    reason_roles:
+      - triage
+      - deep
+  overnight:
+    reason_roles:
+      - triage
+      - deep
+      - cleanup
+      - clerk
+policies:
+  workflow_name: The Legion
+  model_strategy: parallel
+  disabled_models:
+    - OpenAI-20B-NEO-Uncensored2-IQ4_NL
+    - Qwen3.5-9B-Claude-4.6-HighIQ-INSTRUCT-HERETIC-UNCENSORED.i1-Q5_K_S
+    - Qwen3.5-9B-ultra-heretic-Q4_K_M
+exclusive_with: agency
+verify_models:
+  - qwen2.5-coder-1.5b-instruct-q6_k
+  - starcoder2-3b.Q4_K_M

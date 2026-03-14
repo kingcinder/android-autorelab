@@ -1,0 +1,19 @@
+[Unit]
+Description=Android AutoRELab The Agency Router
+Conflicts=legion.service
+Before=legion.service
+
+[Service]
+Type=simple
+WorkingDirectory=__ARELAB_ROOT__
+Environment=ARELAB_WORKFLOW=agency
+ExecStartPre=/usr/bin/env bash -lc '__ARELAB_ROOT__/scripts/stop_legion.sh >/dev/null 2>&1 || true'
+ExecStart=/usr/bin/env bash -lc 'cd "__ARELAB_ROOT__" && exec ./scripts/start_agency.sh --foreground'
+ExecStop=/usr/bin/env bash -lc 'cd "__ARELAB_ROOT__" && exec ./scripts/stop_agency.sh'
+Restart=on-failure
+RestartSec=2
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

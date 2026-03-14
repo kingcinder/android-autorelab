@@ -1,0 +1,6 @@
+policy_name: defensive-authorized-analysis
+guardrails:
+  - Do not generate exploit code, payloads, or bypass instructions.
+  - Default to read-only processing for inputs.
+  - Record every tool invocation and model interaction.
+  - Remediation guidance must be fix-oriented and non-weaponized.

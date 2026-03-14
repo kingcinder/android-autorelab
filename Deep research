@@ -1,0 +1,48 @@
+LLM MODELS:
+
+Currently available:
+
+Bootes-Qwen3-Coder-Reasoning.i1-Q4_K_M.gguf
+
+deepseek-coder-7b-instruct-v1.5-imat-Q4_K_M.gguf
+
+LLM4Binary_llm4decompile-9b-v2.Q4_K_S.gguf
+
+OpenAI-20B-NEO-Uncensored2-IQ4_NL.gguf
+
+qwen2.5-coder-1.5b-instruct-q6_k.gguf
+
+qwen2.5-coder-7b-instruct-q4_k_m.gguf
+
+Qwen2.5-Microsoft-NextCoder-Olympic-Instruct-FUSED-CODER-Fast-11B.i1-Q4_K_M.gguf
+
+Qwen3.5-9B-Claude-4.6-HighIQ-INSTRUCT-HERETIC-UNCENSORED.i1-Q5_K_S.gguf
+
+Qwen3.5-9B-Q4_K_XL.gguf
+
+Qwen3.5-9B-ultra-heretic-q4_K_M.gguf
+
+Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-Q6_K.gguf
+
+Qwen3-4B-Thinking-2507-Genius-Coder-Q4_K_M.gguf
+
+starcoder2-3b.Q4_K_M.gguf
+
+
+DATASETS:
+
+
+mlfoundations-dev/stackexchange-overflow-sandboxes-traces-terminus-2
+
+
+REVERSE ENGINEERING TOOLS:
+
+GitHub Releases: 
+
+Vibe Reverser - A reverse engineer AI agent
+
+ReverserAI (v1.1)
+
+ReVa - Ghidra MCP Server for AI-Powered Reverse Engineering
+
+

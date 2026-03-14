@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel detail-header">
+  <div>
+    <p class="eyebrow">Run {{ run.run_id }}</p>
+    <h2>{{ run.status|upper }} · {{ run.stage }}</h2>
+    <p>{{ run.input_path }}</p>
+    <div class="hero-ribbon detail-ribbon">
+      <span>{{ run.profile }}</span>
+      <span>{{ run.status }}</span>
+      <span>{{ run.stage }}</span>
+    </div>
+  </div>
+  <div class="detail-links">
+    <a href="/runs/{{ run.run_id }}/report">Raw report</a>
+    <a href="/runs/{{ run.run_id }}/artifacts">Manifest</a>
+  </div>
+</section>
+
+<section class="detail-grid">
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Run Metadata</h3>
+    </div>
+    <dl class="meta-list">
+      <div><dt>Created</dt><dd>{{ run.created_at }}</dd></div>
+      <div><dt>Updated</dt><dd>{{ run.updated_at }}</dd></div>
+      <div><dt>Profile</dt><dd>{{ run.profile }}</dd></div>
+      <div><dt>Output</dt><dd>{{ run.output_root }}</dd></div>
+      <div><dt>Report</dt><dd>{{ run.report_path or "pending" }}</dd></div>
+    </dl>
+  </article>
+
+  <article class="panel report-panel">
+    <div class="panel-head">
+      <h3>Report Preview</h3>
+      <p>Markdown snapshot from the completed run bundle.</p>
+    </div>
+    <pre>{{ report_md }}</pre>
+  </article>
+</section>
+{% endblock %}

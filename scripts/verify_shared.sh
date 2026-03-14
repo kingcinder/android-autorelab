@@ -76,22 +76,37 @@ from pathlib import Path
 
 from arelab.config import Settings
 from arelab.model_gateway import ModelGateway
+from arelab.router import RouterClient
 
 root = Path(os.environ["ROOT_DIR_ENV"])
 settings = Settings.load(root, workflow=os.environ["VERIFY_WORKFLOW_ENV"])
 gateway = ModelGateway(settings, root / "tmp-prompts")
+client = RouterClient(settings)
+client.wait_until_ready(timeout=60)
 models = gateway.available_models()
 assert models, "no models discovered"
 print("\n".join(models))
-payload = gateway.chat_json(
-    role="triage",
-    system_prompt="Return JSON only. Do not include reasoning in the final answer.",
-    user_prompt='Return exactly this JSON object and nothing else: {"swap_candidates": []}',
-    schema_name="verify-triage",
-    max_tokens=128,
-    timeout=180,
-)
-assert payload == {"swap_candidates": []}
+model = gateway.resolve_role("triage")
+if not model:
+    verify_models = settings.workflow_config.get("verify_models") or []
+    model = verify_models[0] if verify_models else None
+assert model, "no verification model resolved"
+client.load_model(model, timeout=240)
+client.wait_for_model_state(model, expected={"loading", "loaded"}, timeout=240, settle_seconds=1.0)
+try:
+    client.warm_model(model, timeout=180)
+    payload = gateway.chat_json(
+        role="triage",
+        system_prompt="Return JSON only. Do not include reasoning in the final answer.",
+        user_prompt='Return exactly this JSON object and nothing else: {"swap_candidates": []}',
+        schema_name="verify-triage",
+        max_tokens=128,
+        timeout=180,
+    )
+    assert payload == {"swap_candidates": []}
+finally:
+    client.unload_model(model, timeout=240)
+    client.wait_for_model_state(model, expected={"unloaded"}, timeout=240, settle_seconds=1.0)
 PY
 pass "model list + chat completion"
 

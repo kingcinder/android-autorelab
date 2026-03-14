@@ -6,17 +6,8 @@ import os
 import shutil
 from pathlib import Path
 
+from arelab.config import Settings
 from arelab.router import run_router_foreground
-
-
-def default_llama_bin() -> str:
-    env = os.environ.get("ARELAB_LLAMA_SERVER")
-    if env:
-        return env
-    resolved = shutil.which("llama-server")
-    if resolved:
-        return resolved
-    return "llama-server"
 
 
 def resolve_llama_bin(value: str) -> Path:
@@ -29,16 +20,29 @@ def resolve_llama_bin(value: str) -> Path:
     return candidate
 
 
+def default_llama_bin(repo_root: Path, workflow: str) -> str:
+    env = os.environ.get("ARELAB_LLAMA_SERVER")
+    if env:
+        return env
+    settings = Settings.load(repo_root, workflow=workflow)
+    configured = settings.tool_overrides.get("llama_server")
+    if configured:
+        return configured
+    resolved = shutil.which("llama-server")
+    if resolved:
+        return resolved
+    return "llama-server"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run a workflow-specific llama.cpp router in the foreground.")
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--workflow", required=True, choices=["agency", "legion"])
-    parser.add_argument(
-        "--llama-bin",
-        default=default_llama_bin(),
-    )
+    parser.add_argument("--llama-bin", default=None)
     args = parser.parse_args()
-    return run_router_foreground(Path(args.repo_root).resolve(), args.workflow, resolve_llama_bin(args.llama_bin))
+    repo_root = Path(args.repo_root).resolve()
+    llama_bin = args.llama_bin or default_llama_bin(repo_root, args.workflow)
+    return run_router_foreground(repo_root, args.workflow, resolve_llama_bin(llama_bin))
 
 
 if __name__ == "__main__":

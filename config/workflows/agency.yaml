@@ -5,7 +5,7 @@ router:
   host: 127.0.0.1
   port: 18081
   base_url: http://127.0.0.1:18081/v1
-  models_dir: models
+  models_dir: /home/oem/Models
   models_max: 1
   ctx_size: 4096
   batch_size: 64

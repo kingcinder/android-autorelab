@@ -13,6 +13,15 @@ need_cmd() { command -v "$1" >/dev/null 2>&1 || { printf '[FAIL] missing command
 have_user_systemd() { command -v systemctl >/dev/null 2>&1 && systemctl --user show-environment >/dev/null 2>&1; }
 managed_backend() { [ -n "${ARELAB_OPENAI_BASE_URL:-}" ]; }
 
+assert_managed_backend_ready() {
+  local base_url="$1"
+  local probe_url="${base_url%/}/models"
+  if ! curl -fsS --max-time 5 "$probe_url" >/dev/null 2>&1; then
+    printf '[FAIL] externally managed backend is unreachable: %s\n' "$probe_url" >&2
+    exit 1
+  fi
+}
+
 wait_for_unit_stopped() {
   local unit="$1"
   local timeout="${2:-30}"
@@ -31,6 +40,10 @@ wait_for_unit_stopped() {
 
 [ -x "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv; run scripts/install.sh first" >&2; exit 1; }
 [ -x "$ARELAB_BIN" ] || { echo "[FAIL] missing arelab entrypoint; reinstall required" >&2; exit 1; }
+
+if managed_backend; then
+  assert_managed_backend_ready "${ARELAB_OPENAI_BASE_URL:-}"
+fi
 
 if ! managed_backend; then
   have_user_systemd && systemctl --user stop agency.service legion.service >/dev/null 2>&1 || true

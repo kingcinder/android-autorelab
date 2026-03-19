@@ -66,9 +66,10 @@ def _wait_for_status(client: RouterClient, model: str, expected: set[str], timeo
 
 def _assert_model_loaded(client: RouterClient, model: str, cap: int) -> list[str]:
     active = _assert_loaded_cap(client, cap)
-    if model not in active:
-        raise RuntimeError(f"{model} is not active; router reports {active}")
-    return active
+    loaded = client.loaded_models()
+    if model not in loaded:
+        raise RuntimeError(f"{model} is not loaded; active={active} loaded={loaded}")
+    return loaded
 
 
 def _runtime_dir() -> Path:
@@ -199,12 +200,14 @@ def verify_workflow(repo_root: Path, workflow: str) -> dict[str, object]:
             client.load_model(model, timeout=status_timeout)
         except HTTPError:
             pass
-        _wait_for_status(client, model, {"loading", "loaded"}, timeout=status_timeout)
+        _wait_for_status(client, model, {"loaded"}, timeout=status_timeout)
         warm_error: str | None = None
         try:
             client.warm_model(model, timeout=status_timeout)
         except Exception as exc:  # noqa: BLE001
             warm_error = str(exc)
+        if warm_error:
+            raise RuntimeError(f"warm request failed for {model}: {warm_error}")
         time.sleep(settle_seconds)
         loaded_history.append(_assert_model_loaded(client, model, max_loaded))
         rss_history_kb.append(

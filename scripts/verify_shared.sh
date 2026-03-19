@@ -105,9 +105,11 @@ if not model:
     model = verify_models[0] if verify_models else None
 assert model, "no verification model resolved"
 client.load_model(model, timeout=240)
-client.wait_for_model_state(model, expected={"loading", "loaded"}, timeout=240, settle_seconds=1.0)
+client.wait_for_model_state(model, expected={"loaded"}, timeout=240, settle_seconds=1.0)
 try:
     client.warm_model(model, timeout=180)
+    loaded = client.loaded_models()
+    assert model in loaded, f"expected loaded model {model}, router reports {loaded}"
     payload = gateway.chat_json(
         role="triage",
         system_prompt="Return JSON only. Do not include reasoning in the final answer.",

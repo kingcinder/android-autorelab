@@ -151,7 +151,7 @@ if [ "$MODE" = "--foreground" ]; then
   exec "${CMD[@]}"
 fi
 
-nohup "${CMD[@]}" >>"$LOG_FILE" 2>&1 </dev/null &
+nohup setsid "${CMD[@]}" >>"$LOG_FILE" 2>&1 </dev/null &
 ROUTER_PID=$!
 disown "$ROUTER_PID" 2>/dev/null || true
 echo "$ROUTER_PID" >"$PID_FILE"

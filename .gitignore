@@ -16,5 +16,8 @@ config/local-overrides.yaml
 artifacts/
 checkpoints/
 
+# Local backups
+archive/
+
 # OS/editor junk
 .DS_Store

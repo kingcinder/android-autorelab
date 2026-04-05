@@ -2,7 +2,8 @@
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+source "$ROOT_DIR/scripts/venv_paths.sh"
+PYTHON_BIN="$VENV_PYTHON"
 if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
   STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
 else
@@ -28,9 +29,9 @@ wait_for_reset() {
   local deadline=$((SECONDS + 30))
   while [ "$SECONDS" -lt "$deadline" ]; do
     if [ ! -f "$ACTIVE_LOCK" ] &&
-      ! pgrep -f "$ROOT_DIR/.venv/bin/arelab" >/dev/null 2>&1 &&
-      ! pgrep -f "$ROOT_DIR/.venv/bin/agencyctl" >/dev/null 2>&1 &&
-      ! pgrep -f "$ROOT_DIR/.venv/bin/legionctl" >/dev/null 2>&1 &&
+      ! pgrep -f "$ROOT_DIR/.venv.*/arelab" >/dev/null 2>&1 &&
+      ! pgrep -f "$ROOT_DIR/.venv.*/agencyctl" >/dev/null 2>&1 &&
+      ! pgrep -f "$ROOT_DIR/.venv.*/legionctl" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/scripts/run_router.py --repo-root $ROOT_DIR --workflow agency" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/scripts/run_router.py --repo-root $ROOT_DIR --workflow legion" >/dev/null 2>&1 &&
       ! pgrep -f "llama-server.*--port 18081" >/dev/null 2>&1 &&
@@ -49,9 +50,9 @@ reset_workflows() {
   "$ROOT_DIR/scripts/stop_legion.sh" >/dev/null 2>&1 || true
   systemctl --user stop agency.service legion.service >/dev/null 2>&1 || true
   systemctl --user reset-failed agency.service legion.service >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/arelab" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/agencyctl" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/legionctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/arelab" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/agencyctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/legionctl" >/dev/null 2>&1 || true
   "$PYTHON_BIN" -c "from arelab.locks import clear_workflow_lock; clear_workflow_lock()" >/dev/null 2>&1 || true
   wait_for_reset
 }

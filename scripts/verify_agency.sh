@@ -2,7 +2,8 @@
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+source "$ROOT_DIR/scripts/venv_paths.sh"
+PYTHON_BIN="$VENV_PYTHON"
 if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
   STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
 else
@@ -96,9 +97,9 @@ PY
 }
 
 reset_state() {
-  pkill -f "$ROOT_DIR/.venv/bin/arelab" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/agencyctl" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/legionctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/arelab" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/agencyctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/legionctl" >/dev/null 2>&1 || true
   cleanup
 }
 

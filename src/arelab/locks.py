@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -12,7 +13,9 @@ def _runtime_dir() -> Path:
     runtime_dir = os.environ.get("XDG_RUNTIME_DIR")
     if runtime_dir:
         return Path(runtime_dir) / "android-autorelab"
-    return Path("/tmp") / f"android-autorelab-{os.getuid()}"
+    uid = getattr(os, "getuid", None)
+    owner = uid() if callable(uid) else os.environ.get("USERNAME", "default")
+    return Path(tempfile.gettempdir()) / f"android-autorelab-{owner}"
 
 
 def state_path() -> Path:

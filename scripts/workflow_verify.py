@@ -6,9 +6,16 @@ import json
 import os
 import socket
 import subprocess
+import sys
+import tempfile
 import time
 from pathlib import Path
 from urllib.error import HTTPError
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 from arelab.config import Settings
 from arelab.locks import read_active_workflow
@@ -76,7 +83,24 @@ def _runtime_dir() -> Path:
     runtime_dir = os.environ.get("XDG_RUNTIME_DIR")
     if runtime_dir:
         return Path(runtime_dir) / "android-autorelab"
-    return Path("/tmp") / f"android-autorelab-{os.getuid()}"
+    uid = getattr(os, "getuid", None)
+    owner = uid() if callable(uid) else os.environ.get("USERNAME", "default")
+    return Path(tempfile.gettempdir()) / f"android-autorelab-{owner}"
+
+
+def _resolve_venv_executable(repo_root: Path, name: str) -> Path:
+    candidates = [
+        repo_root / ".venv" / "bin" / name,
+        repo_root / ".venv" / "bin" / f"{name}.exe",
+        repo_root / ".venv" / "Scripts" / name,
+        repo_root / ".venv" / "Scripts" / f"{name}.exe",
+        repo_root / ".venv" / "Scripts" / f"{name}.cmd",
+        repo_root / ".venv" / "Scripts" / f"{name}.bat",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(f"missing virtualenv executable for {name}")
 
 
 def _launcher_pid(workflow: str) -> int | None:
@@ -243,7 +267,7 @@ def verify_workflow(repo_root: Path, workflow: str) -> dict[str, object]:
                 f"final={final_rss_kb}KB limit={allowed_growth_kb}KB"
             )
 
-    ctl = repo_root / ".venv" / "bin" / f"{workflow}ctl"
+    ctl = _resolve_venv_executable(repo_root, f"{workflow}ctl")
     profile = "fast"
     subprocess.run(
         [str(ctl), "--repo-root", str(repo_root), "demo", "--profile", profile],

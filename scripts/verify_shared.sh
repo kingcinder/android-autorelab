@@ -3,8 +3,9 @@ set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="$ROOT_DIR/.venv"
-PYTHON_BIN="$VENV_DIR/bin/python"
-ARELAB_BIN="$VENV_DIR/bin/arelab"
+source "$ROOT_DIR/scripts/venv_paths.sh"
+PYTHON_BIN="$VENV_PYTHON"
+ARELAB_BIN="$VENV_ARELAB"
 VERIFY_WORKFLOW="${ARELAB_VERIFY_WORKFLOW:-default}"
 
 pass() { printf '[PASS] %s\n' "$*"; }
@@ -38,8 +39,8 @@ wait_for_unit_stopped() {
   exit 1
 }
 
-[ -x "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv; run scripts/install.sh first" >&2; exit 1; }
-[ -x "$ARELAB_BIN" ] || { echo "[FAIL] missing arelab entrypoint; reinstall required" >&2; exit 1; }
+[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv; run scripts/install.sh first" >&2; exit 1; }
+[ -n "$ARELAB_BIN" ] || { echo "[FAIL] missing arelab entrypoint; reinstall required" >&2; exit 1; }
 
 if managed_backend; then
   assert_managed_backend_ready "${ARELAB_OPENAI_BASE_URL:-}"
@@ -49,9 +50,9 @@ if ! managed_backend; then
   have_user_systemd && systemctl --user stop agency.service legion.service >/dev/null 2>&1 || true
   "$ROOT_DIR/scripts/stop_agency.sh" >/dev/null 2>&1 || true
   "$ROOT_DIR/scripts/stop_legion.sh" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/arelab" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/agencyctl" >/dev/null 2>&1 || true
-  pkill -f "$ROOT_DIR/.venv/bin/legionctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/arelab" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/agencyctl" >/dev/null 2>&1 || true
+  pkill -f "$ROOT_DIR/.venv.*/legionctl" >/dev/null 2>&1 || true
   if have_user_systemd; then
     systemctl --user stop agency.service legion.service >/dev/null 2>&1 || true
     systemctl --user reset-failed agency.service legion.service >/dev/null 2>&1 || true
@@ -133,5 +134,5 @@ grep -q "SWAP-" "$REPORT_PATH"
 pass "shared proof run generated SWAP report"
 
 info "Running unit tests"
-"$VENV_DIR/bin/pytest" -q
+"$VENV_PYTEST" -q
 pass "unit tests"

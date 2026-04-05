@@ -34,10 +34,10 @@ def merge_yaml(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]
 def _expand_pathlike(value: str | None, repo_root: Path) -> str | None:
     if not value:
         return value
-    expanded = Path(os.path.expandvars(os.path.expanduser(str(value))))
-    if not expanded.is_absolute():
-        expanded = (repo_root / expanded).resolve()
-    return str(expanded)
+    expanded = os.path.expandvars(os.path.expanduser(str(value)))
+    if os.path.isabs(expanded):
+        return expanded
+    return str((repo_root / expanded).resolve())
 
 
 def _probe_base_url(base_url: str, timeout: float = 1.5) -> bool:

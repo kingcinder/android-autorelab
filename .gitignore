@@ -15,6 +15,7 @@ config/local-overrides.yaml
 # Tooling output
 artifacts/
 checkpoints/
+dist/
 
 # Local backups
 archive/

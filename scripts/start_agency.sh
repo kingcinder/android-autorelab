@@ -2,7 +2,8 @@
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+source "$ROOT_DIR/scripts/venv_paths.sh"
+PYTHON_BIN="$VENV_PYTHON"
 if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
   STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
 else
@@ -15,7 +16,7 @@ PORT=18081
 mkdir -p "$STATE_DIR"
 umask 077
 
-[ -x "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python at $PYTHON_BIN" >&2; exit 1; }
+[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python under $ROOT_DIR/.venv" >&2; exit 1; }
 
 MODE="${1:-background}"
 if [ -f "$LOCK_FILE" ]; then

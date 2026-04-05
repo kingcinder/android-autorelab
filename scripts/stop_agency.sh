@@ -2,7 +2,8 @@
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+source "$ROOT_DIR/scripts/venv_paths.sh"
+PYTHON_BIN="$VENV_PYTHON"
 if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
   STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
 else
@@ -74,7 +75,7 @@ fi
 pkill -f "llama-server.*--port ${PORT}" >/dev/null 2>&1 || true
 pkill -f "run_router.py.*workflow agency" >/dev/null 2>&1 || true
 pkill -f "workflow_service.py agency" >/dev/null 2>&1 || true
-[ -x "$PYTHON_BIN" ] && "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1 || true
+[ -n "$PYTHON_BIN" ] && "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1 || true
 from arelab.locks import clear_workflow_lock
 clear_workflow_lock("agency")
 PY

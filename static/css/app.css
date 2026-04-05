@@ -241,6 +241,93 @@ dt {
   gap: 16px;
 }
 
+.intake-grid,
+.choice-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.intake-card,
+.choice-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--panel-soft);
+}
+
+.intake-card h4,
+.choice-card h4 {
+  margin: 0;
+  font-size: 1.06rem;
+}
+
+.intake-form {
+  display: grid;
+  gap: 12px;
+}
+
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-field span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.form-field input,
+.form-field textarea,
+.intake-form button {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 12, 0.55);
+  color: var(--text);
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.intake-form button,
+.choice-card {
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.intake-form button {
+  cursor: pointer;
+  background: rgba(255, 180, 66, 0.14);
+}
+
+.intake-form button:hover,
+.choice-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 180, 66, 0.64);
+  background: rgba(255, 180, 66, 0.1);
+}
+
+.helper-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  display: grid;
+  gap: 8px;
+}
+
+.helper-list.compact {
+  gap: 6px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.summary-grid h4 {
+  margin: 0 0 10px;
+}
+
 .run-card {
   display: block;
   padding: 18px;
@@ -355,6 +442,10 @@ dt {
   display: grid;
   grid-template-columns: minmax(260px, 360px) 1fr;
   gap: 18px;
+}
+
+.detail-grid-wide {
+  grid-template-columns: minmax(240px, 340px) minmax(240px, 340px) 1fr;
 }
 
 .report-panel pre {

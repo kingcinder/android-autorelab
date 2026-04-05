@@ -4,11 +4,13 @@ from pathlib import Path
 
 from arelab.agents import merge_candidates, model_candidates
 from arelab.analyze import analyze_manifest
+from arelab.basement import prepare_basement
 from arelab.config import Settings
 from arelab.decompile_refine import refine_pseudocode
 from arelab.demo import build_demo_inputs
 from arelab.ghidra import GhidraAnalyzer
 from arelab.ingest import build_manifest
+from arelab.intake import infer_input_session
 from arelab.locks import workflow_lock
 from arelab.model_gateway import ModelGateway
 from arelab.report import write_report
@@ -59,6 +61,10 @@ def run_pipeline(
                     raise ValueError("input_path is required when demo=False")
                 actual_input = input_path
 
+            intake_session = infer_input_session(repo_root, actual_input, demo=demo)
+            prepare_basement(run_dir, workflow, intake_session)
+            metadata.intake_session_id = intake_session.session_id
+            metadata.source_type = intake_session.source_type
             json_dump(run_dir / "artifacts" / "tool-detection.json", tools)
             _checkpoint(run_dir, "workflow", {"name": workflow_spec.name, "mode": workflow_spec.mode})
 

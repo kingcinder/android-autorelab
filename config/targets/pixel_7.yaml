@@ -1,0 +1,53 @@
+target_id: google-pixel7-synthetic-001
+vendor: Google
+family: Pixel
+model: "7"
+build_id: TQ3A.240205.001
+bootchain_depth: 8
+artifact_completeness: 0.88
+recency_rank: 9
+disclosure_value: 8
+vendor_weight: 1.4
+authorized_scope: controlled-lab-synthetic
+acquisition_notes:
+  - Synthetic example for normalized metadata bundles and disclosure scaffolding.
+artifacts:
+  - name: pixel7-reference-metadata.json
+    kind: normalized_metadata_bundle
+    provenance: normalized metadata bundles
+    path_hint: references/pixel7/reference-metadata.json
+    completeness: 0.9
+  - name: pixel7-images.zip
+    kind: vendor_firmware_package
+    provenance: vendor firmware packages
+    path_hint: references/pixel7/images.zip
+    completeness: 0.87
+boot_components:
+  - name: boot_rom
+    stage: rom
+    signed: true
+    verifies: [bl1]
+    evidence: [tensor-root-of-trust]
+  - name: bl1
+    stage: preloader
+    signed: true
+    verifies: [bl2]
+    evidence: [bl1-measurement]
+  - name: bl2
+    stage: bootloader
+    signed: true
+    verifies: [vbmeta]
+    evidence: [bl2-policy, rollback-index]
+  - name: vbmeta
+    stage: avb
+    signed: true
+    verifies: [boot]
+    evidence: [vbmeta-chain]
+  - name: boot
+    stage: kernel
+    signed: true
+    verifies: []
+    evidence: [boot-hash]
+metadata:
+  synthetic: true
+  priority_hint: primary

@@ -12,6 +12,7 @@ Requires-Dist: uvicorn==0.34.0
 Provides-Extra: analysis
 Requires-Dist: angr; extra == "analysis"
 Provides-Extra: dev
+Requires-Dist: httpx==0.28.1; extra == "dev"
 Requires-Dist: pytest==8.3.5; extra == "dev"
 
 # android-autorelab

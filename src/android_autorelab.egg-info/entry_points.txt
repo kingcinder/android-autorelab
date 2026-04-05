@@ -1,4 +1,7 @@
 [console_scripts]
 agencyctl = arelab.cli:main
 arelab = arelab.cli:main
+intake_target = arelab.targets:main_intake_target
 legionctl = arelab.cli:main
+map_bootchain = arelab.bootchain:main_map_bootchain
+score_targets = arelab.targets:main_score_targets

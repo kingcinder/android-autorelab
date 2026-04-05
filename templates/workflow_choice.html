@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel detail-header">
+  <div>
+    <p class="eyebrow">Neutral Intake Context</p>
+    <h2>Workflow binding happens only after intake is established.</h2>
+    <p>Session {{ session.session_id }} records provided material, inferred context, remaining unknowns, and provenance notes before any run is created.</p>
+    <div class="hero-ribbon detail-ribbon">
+      <span>{{ session.source_type }}</span>
+      <span>{{ session.canonical_keys.session_key }}</span>
+      <span>workflow-neutral</span>
+    </div>
+  </div>
+  <div class="detail-links">
+    <a href="/">Back to startup</a>
+    <a href="/runs">Run ledger</a>
+  </div>
+</section>
+
+<section class="detail-grid choice-grid">
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Session Context</h3>
+      <p>Canonicalized intake state.</p>
+    </div>
+    <div class="summary-grid">
+      <div>
+        <h4>Provided</h4>
+        <ul class="helper-list compact">
+          {% for key, value in session.provided.items() %}
+          <li><strong>{{ key }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>Inferred</h4>
+        <ul class="helper-list compact">
+          {% for key, value in session.inferred.items() %}
+          <li><strong>{{ key }}</strong>: {{ value }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>Unknown</h4>
+        <ul class="helper-list compact">
+          {% for item in session.unknown %}
+          <li>{{ item }}</li>
+          {% else %}
+          <li>No open unknowns recorded.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>Provenance</h4>
+        <ul class="helper-list compact">
+          {% for item in session.provenance_notes %}
+          <li>{{ item }}</li>
+          {% else %}
+          <li>No provenance notes provided.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Select Workflow</h3>
+      <p>The Basement remains a subordinate routine inside the chosen workflow scope.</p>
+    </div>
+    <div class="choice-cards">
+      {% for option in workflow_options %}
+      <a class="choice-card" href="/start?session_id={{ session.session_id }}&workflow_name={{ option.name }}">
+        <p class="eyebrow">Workflow</p>
+        <h4>{{ option.label }}</h4>
+        <p>{{ option.description }}</p>
+        <span>Outputs stay under runs/{{ option.name }}/...</span>
+      </a>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

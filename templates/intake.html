@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Shared Intake Routing Splash</p>
+    <h2>Establish neutral intake context before binding to a workflow.</h2>
+    <p>The first screen now captures what was provided, what was inferred, and what remains unknown before either workflow is selected.</p>
+    <div class="hero-ribbon">
+      <span>shared intake</span>
+      <span>workflow-neutral</span>
+      <span>provenance recorded</span>
+    </div>
+  </div>
+  <div class="hero-panel">
+    <div class="metric">
+      <span>Tracked runs</span>
+      <strong>{{ tracked_runs }}</strong>
+    </div>
+    <div class="metric">
+      <span>Binding model</span>
+      <strong>Agency / Legion after intake</strong>
+    </div>
+    <div class="metric">
+      <span>Ledger</span>
+      <strong><a href="/runs">Preserved at /runs</a></strong>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h3>Startup Options</h3>
+    <p>The workflow is chosen only after intake context is created.</p>
+  </div>
+  <div class="intake-grid">
+    <article class="intake-card">
+      <div>
+        <p class="eyebrow">Option 1</p>
+        <h4>Acquire from physical target device</h4>
+        <p>Record a device label, connection hint, and acquisition notes without pre-binding the result to either workflow.</p>
+      </div>
+      <form action="/intake/create" method="get" class="intake-form">
+        <input type="hidden" name="source_type" value="physical_target_device" />
+        <label class="form-field">
+          <span>Device label</span>
+          <input name="device_label" placeholder="lab-phone-a54" />
+        </label>
+        <label class="form-field">
+          <span>Connection hint</span>
+          <input name="connection_hint" placeholder="USB-C / adb / fastboot" />
+        </label>
+        <label class="form-field">
+          <span>Acquisition notes</span>
+          <textarea name="acquisition_notes" rows="3" placeholder="Authorized lab capture, physical custody retained."></textarea>
+        </label>
+        <button type="submit">Create intake context</button>
+      </form>
+    </article>
+
+    <article class="intake-card">
+      <div>
+        <p class="eyebrow">Option 2</p>
+        <h4>Load saved project</h4>
+        <p>Resume an existing project bundle while keeping original acquisition provenance explicit and unresolved details visible.</p>
+      </div>
+      <form action="/intake/create" method="get" class="intake-form">
+        <input type="hidden" name="source_type" value="saved_project" />
+        <label class="form-field">
+          <span>Project path</span>
+          <input name="project_path" placeholder="C:\AndroidRE\cases\saved-project" />
+        </label>
+        <label class="form-field">
+          <span>Acquisition notes</span>
+          <textarea name="acquisition_notes" rows="3" placeholder="Prior evidence preserved in project bundle."></textarea>
+        </label>
+        <button type="submit">Load saved project</button>
+      </form>
+    </article>
+
+    <article class="intake-card">
+      <div>
+        <p class="eyebrow">Option 3</p>
+        <h4>Load reference file or reference file set</h4>
+        <p>Import neutral reference material, normalize it into session context, and preserve source notes before workflow choice.</p>
+      </div>
+      <form action="/intake/create" method="get" class="intake-form">
+        <input type="hidden" name="source_type" value="reference_file_set" />
+        <label class="form-field">
+          <span>Reference path(s)</span>
+          <textarea name="reference_paths" rows="4" placeholder="C:\captures\samfw-a54.zip&#10;C:\captures\vbmeta.img"></textarea>
+        </label>
+        <label class="form-field">
+          <span>Acquisition notes</span>
+          <textarea name="acquisition_notes" rows="3" placeholder="Downloaded firmware files from SamFW, vendor firmware packages, extracted images, prior evidence bundles, or normalized metadata bundles."></textarea>
+        </label>
+        <button type="submit">Load reference file or file set</button>
+      </form>
+    </article>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h3>Supported Reference Wording</h3>
+    <p>Examples called out explicitly in the routing flow.</p>
+  </div>
+  <ul class="helper-list">
+    {% for example in reference_examples %}
+    <li>{{ example }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

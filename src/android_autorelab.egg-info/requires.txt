@@ -8,4 +8,5 @@ uvicorn==0.34.0
 angr
 
 [dev]
+httpx==0.28.1
 pytest==8.3.5

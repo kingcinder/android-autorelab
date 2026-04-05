@@ -21,6 +21,7 @@ analysis = [
   "angr",
 ]
 dev = [
+  "httpx==0.28.1",
   "pytest==8.3.5",
 ]
 
@@ -28,6 +29,9 @@ dev = [
 arelab = "arelab.cli:main"
 agencyctl = "arelab.cli:main"
 legionctl = "arelab.cli:main"
+intake_target = "arelab.targets:main_intake_target"
+score_targets = "arelab.targets:main_score_targets"
+map_bootchain = "arelab.bootchain:main_map_bootchain"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -4,7 +4,7 @@
   <div class="hero-copy">
     <p class="eyebrow">Industrial Evidence Board</p>
     <h2>Runs, reports, artifacts, and operator traceability in one place.</h2>
-    <p>The suite stays local, stages analysis automatically, and keeps every prompt and tool invocation auditable.</p>
+    <p>The suite stays local, stages analysis automatically, and keeps every prompt and tool invocation auditable. Startup intake now begins at <code>/</code>; the ledger remains intact here.</p>
     <div class="hero-ribbon">
       <span>audit-logged</span>
       <span>checkpointed</span>
@@ -22,7 +22,7 @@
     </div>
     <div class="metric">
       <span>Mode</span>
-      <strong>local dossier</strong>
+      <strong>{{ workflow }}</strong>
     </div>
   </div>
 </section>
@@ -34,7 +34,7 @@
   </div>
   <div class="run-grid">
     {% for run in runs %}
-    <a class="run-card" href="/runs/{{ run.run_id }}">
+    <a class="run-card" href="/runs/{{ run.workflow }}/{{ run.run_id }}">
       <div class="run-card-topline">
         <span class="run-status run-status-{{ run.status }}">{{ run.status }}</span>
         <span class="run-stage">{{ run.stage }}</span>
@@ -42,6 +42,10 @@
       <h4>{{ run.run_id }}</h4>
       <p class="run-path">{{ run.input_path }}</p>
       <dl>
+        <div>
+          <dt>Workflow</dt>
+          <dd>{{ run.workflow }}</dd>
+        </div>
         <div>
           <dt>Profile</dt>
           <dd>{{ run.profile }}</dd>
@@ -55,7 +59,7 @@
     {% else %}
     <div class="empty-state">
       <h4>No runs yet</h4>
-      <p>Use <code>arelab demo</code> or <code>arelab run --input ...</code> to generate the first dossier.</p>
+      <p>Use the startup intake flow at <code>/</code>, or run <code>arelab demo</code> / <code>arelab run --input ...</code> to generate the first dossier.</p>
       <div class="empty-command">
         <code>arelab demo --profile overnight</code>
       </div>

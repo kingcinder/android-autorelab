@@ -101,3 +101,100 @@ class RunMetadata(BaseModel):
     stage: str
     error: str | None = None
     report_path: str | None = None
+    basement_path: str | None = None
+    intake_session_id: str | None = None
+    source_type: str | None = None
+
+
+class IntakeReference(BaseModel):
+    raw_value: str
+    resolved_path: str
+    exists: bool
+    inferred_kind: str
+
+
+class IntakeSessionContext(BaseModel):
+    session_id: str
+    created_at: str
+    source_type: Literal["physical_target_device", "saved_project", "reference_file_set"]
+    provided: dict[str, Any] = Field(default_factory=dict)
+    inferred: dict[str, Any] = Field(default_factory=dict)
+    unknown: list[str] = Field(default_factory=list)
+    provenance_notes: list[str] = Field(default_factory=list)
+    references: list[IntakeReference] = Field(default_factory=list)
+    canonical_keys: dict[str, str] = Field(default_factory=dict)
+
+
+class TargetArtifact(BaseModel):
+    name: str
+    kind: str
+    provenance: str
+    path_hint: str | None = None
+    completeness: float = 0.0
+    notes: list[str] = Field(default_factory=list)
+
+
+class BootComponent(BaseModel):
+    name: str
+    stage: str
+    signed: bool = True
+    verifies: list[str] = Field(default_factory=list)
+    evidence: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class TargetProfile(BaseModel):
+    target_id: str
+    vendor: str
+    family: str
+    model: str
+    build_id: str
+    bootchain_depth: int
+    artifact_completeness: float
+    recency_rank: int
+    disclosure_value: int
+    vendor_weight: float
+    authorized_scope: str
+    acquisition_notes: list[str] = Field(default_factory=list)
+    artifacts: list[TargetArtifact] = Field(default_factory=list)
+    boot_components: list[BootComponent] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class TargetScore(BaseModel):
+    target_id: str
+    score: float
+    rationale: dict[str, float] = Field(default_factory=dict)
+
+
+class BootChainExposure(BaseModel):
+    component: str
+    stage: str
+    trust_boundary: Literal[
+        "signed_to_signed",
+        "signed_to_unsigned",
+        "unsigned_to_signed",
+        "unsigned_to_unsigned",
+    ]
+    exposure: str
+    evidence: list[str] = Field(default_factory=list)
+    remediation_focus: str
+    finding_scaffold: dict[str, str] = Field(default_factory=dict)
+
+
+class BootChainMap(BaseModel):
+    target_id: str
+    created_at: str
+    stage_map: dict[str, list[str]] = Field(default_factory=dict)
+    trust_boundaries: list[dict[str, Any]] = Field(default_factory=list)
+    exposures: list[BootChainExposure] = Field(default_factory=list)
+    finding_scaffolds: list[dict[str, str]] = Field(default_factory=list)
+
+
+class DisclosureManifest(BaseModel):
+    target_id: str
+    generated_at: str
+    chain_of_custody: list[str] = Field(default_factory=list)
+    artifacts: list[dict[str, Any]] = Field(default_factory=list)
+    exposures: list[dict[str, Any]] = Field(default_factory=list)
+    reproduction_steps: list[str] = Field(default_factory=list)

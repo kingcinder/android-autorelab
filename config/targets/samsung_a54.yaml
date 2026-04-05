@@ -1,0 +1,64 @@
+target_id: samsung-a54-synthetic-001
+vendor: Samsung
+family: Galaxy A
+model: A54
+build_id: A546BXXS8XYZ
+bootchain_depth: 9
+artifact_completeness: 0.95
+recency_rank: 8
+disclosure_value: 9
+vendor_weight: 1.6
+authorized_scope: controlled-lab-synthetic
+acquisition_notes:
+  - Synthetic example for authorized Android boot-chain research workflows.
+  - Reference wording supports downloaded firmware files from SamFW and vendor firmware packages.
+artifacts:
+  - name: samfw-a54-full-package.zip
+    kind: vendor_firmware_package
+    provenance: downloaded firmware files from SamFW
+    path_hint: references/samfw-a54-full-package.zip
+    completeness: 1.0
+  - name: vbmeta.img
+    kind: extracted_image
+    provenance: extracted images
+    path_hint: references/a54/vbmeta.img
+    completeness: 0.95
+  - name: evidence-bundle-a54
+    kind: prior_evidence_bundle
+    provenance: prior evidence bundles
+    path_hint: references/a54/evidence-bundle
+    completeness: 0.9
+boot_components:
+  - name: boot_rom
+    stage: rom
+    signed: true
+    verifies: [bl1]
+    evidence: [soc-root-of-trust]
+  - name: bl1
+    stage: preloader
+    signed: true
+    verifies: [abl]
+    evidence: [sboot-header, rollback-index]
+  - name: abl
+    stage: bootloader
+    signed: true
+    verifies: [vbmeta]
+    evidence: [abl-policy, cmdline-filter]
+  - name: vbmeta
+    stage: avb
+    signed: true
+    verifies: [boot]
+    evidence: [avb-chain, vbmeta-descriptors]
+  - name: boot
+    stage: kernel
+    signed: true
+    verifies: [vendor_boot]
+    evidence: [boot-hash]
+  - name: vendor_boot
+    stage: ramdisk
+    signed: true
+    verifies: []
+    evidence: [vendor-ramdisk-digest]
+metadata:
+  synthetic: true
+  priority_hint: primary

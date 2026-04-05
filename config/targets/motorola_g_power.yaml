@@ -1,0 +1,48 @@
+target_id: motorola-gpower-synthetic-001
+vendor: Motorola
+family: Moto G
+model: Power
+build_id: T3RBS33.001
+bootchain_depth: 6
+artifact_completeness: 0.72
+recency_rank: 6
+disclosure_value: 6
+vendor_weight: 1.1
+authorized_scope: controlled-lab-synthetic
+acquisition_notes:
+  - Synthetic example for authorized intake and prioritization flows.
+artifacts:
+  - name: motorola-gpower-firmware.zip
+    kind: vendor_firmware_package
+    provenance: vendor firmware packages
+    path_hint: references/motorola-gpower-firmware.zip
+    completeness: 0.85
+  - name: boot.img
+    kind: extracted_image
+    provenance: extracted images
+    path_hint: references/gpower/boot.img
+    completeness: 0.75
+boot_components:
+  - name: boot_rom
+    stage: rom
+    signed: true
+    verifies: [xbl]
+    evidence: [soc-root-of-trust]
+  - name: xbl
+    stage: preloader
+    signed: true
+    verifies: [abl]
+    evidence: [xbl-header]
+  - name: abl
+    stage: bootloader
+    signed: true
+    verifies: [boot]
+    evidence: [abl-policy]
+  - name: boot
+    stage: kernel
+    signed: false
+    verifies: []
+    evidence: [boot-header]
+metadata:
+  synthetic: true
+  priority_hint: secondary

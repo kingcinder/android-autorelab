@@ -6,18 +6,19 @@
     <h2>{{ run.status|upper }} · {{ run.stage }}</h2>
     <p>{{ run.input_path }}</p>
     <div class="hero-ribbon detail-ribbon">
+      <span>{{ run.workflow }}</span>
       <span>{{ run.profile }}</span>
       <span>{{ run.status }}</span>
       <span>{{ run.stage }}</span>
     </div>
   </div>
   <div class="detail-links">
-    <a href="/runs/{{ run.run_id }}/report">Raw report</a>
-    <a href="/runs/{{ run.run_id }}/artifacts">Manifest</a>
+    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/report">Raw report</a>
+    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/artifacts">Manifest</a>
   </div>
 </section>
 
-<section class="detail-grid">
+<section class="detail-grid detail-grid-wide">
   <article class="panel">
     <div class="panel-head">
       <h3>Run Metadata</h3>
@@ -25,10 +26,37 @@
     <dl class="meta-list">
       <div><dt>Created</dt><dd>{{ run.created_at }}</dd></div>
       <div><dt>Updated</dt><dd>{{ run.updated_at }}</dd></div>
+      <div><dt>Workflow</dt><dd>{{ run.workflow }}</dd></div>
       <div><dt>Profile</dt><dd>{{ run.profile }}</dd></div>
+      <div><dt>Source type</dt><dd>{{ run.source_type or "unknown" }}</dd></div>
+      <div><dt>Intake session</dt><dd>{{ run.intake_session_id or "not recorded" }}</dd></div>
       <div><dt>Output</dt><dd>{{ run.output_root }}</dd></div>
+      <div><dt>Basement</dt><dd>{{ run.basement_path or "pending" }}</dd></div>
       <div><dt>Report</dt><dd>{{ run.report_path or "pending" }}</dd></div>
     </dl>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <h3>Basement Summary</h3>
+      <p>Shared subordinate outputs remain scoped to this workflow run.</p>
+    </div>
+    {% if basement %}
+    <ul class="helper-list compact">
+      <li><strong>Root</strong>: {{ basement.root }}</li>
+      {% if basement.session %}
+      <li><strong>Session source</strong>: {{ basement.session.source_type }}</li>
+      <li><strong>Canonical session key</strong>: {{ basement.session.canonical_keys.session_key }}</li>
+      {% endif %}
+      {% if basement.index %}
+      {% for key, value in basement.index.items() %}
+      <li><strong>{{ key }}</strong>: {{ value }}</li>
+      {% endfor %}
+      {% endif %}
+    </ul>
+    {% else %}
+    <p>No Basement outputs recorded for this run yet.</p>
+    {% endif %}
   </article>
 
   <article class="panel report-panel">
@@ -36,7 +64,7 @@
       <h3>Report Preview</h3>
       <p>Markdown snapshot from the completed run bundle.</p>
     </div>
-    <pre>{{ report_md }}</pre>
+    <pre>{{ report_md or "Report pending for this run." }}</pre>
   </article>
 </section>
 {% endblock %}

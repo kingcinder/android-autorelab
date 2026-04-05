@@ -7,8 +7,9 @@ from pathlib import Path
 from arelab.basement import prepare_basement
 from arelab.disclosure import build_disclosure_manifest, build_disclosure_report, write_disclosure_bundle
 from arelab.intake import build_intake_session
+from arelab.reporting import build_operational_report
 from arelab.schemas import BootChainExposure, BootChainMap, TargetProfile
-from arelab.targets import load_target_profile_by_id
+from arelab.targets import fingerprint_boot_environment, load_target_profile_by_id, verify_ab_partitions
 from arelab.util import json_dump, utc_now
 
 
@@ -33,6 +34,9 @@ def _basement_scope(path: Path) -> tuple[Path, str] | None:
 
 
 def map_boot_chain(profile: TargetProfile) -> BootChainMap:
+    fingerprint = fingerprint_boot_environment(profile)
+    ab_verification = verify_ab_partitions(profile)
+    operational_report = build_operational_report(profile, fingerprint, ab_verification)
     component_by_name = {component.name: component for component in profile.boot_components}
     stage_map: dict[str, list[str]] = {}
     trust_boundaries: list[dict[str, object]] = []
@@ -72,11 +76,74 @@ def map_boot_chain(profile: TargetProfile) -> BootChainMap:
             )
             scaffolds.append(scaffold)
 
+    if fingerprint.bootloader_version:
+        scaffolds.append(
+            {
+                "title": "Bootloader fingerprint corroboration",
+                "impact": f"Confirm that observed boot artifacts match bootloader version {fingerprint.bootloader_version}.",
+                "repro": "Capture boot logs, kernel cmdline, and hardware-register snapshots from the same session.",
+                "remediation": "Preserve fingerprint evidence alongside boot-chain artifacts so later triage can detect spoofed or stale signatures.",
+            }
+        )
+    if fingerprint.device_lock_state in {"unlocked", "mixed"} or fingerprint.verified_boot_state in {"yellow", "orange", "red", "mixed"}:
+        exposures.append(
+            BootChainExposure(
+                component="boot_state_fingerprint",
+                stage="bootloader",
+                trust_boundary="signed_to_signed",
+                exposure=(
+                    f"Fingerprinting indicates device_lock_state={fingerprint.device_lock_state} "
+                    f"and verified_boot_state={fingerprint.verified_boot_state}."
+                ),
+                evidence=[
+                    *(f"{signal.source}:{signal.key}={signal.value}" for signal in fingerprint.evidence[:6]),
+                    *fingerprint.heuristics[:3],
+                ],
+                remediation_focus="Confirm OEM lock, verified boot policy, and bootloader configuration against trusted acquisition evidence.",
+                finding_scaffold={
+                    "title": "Security-state drift in boot fingerprint",
+                    "impact": "Review whether lock-state or verified-boot drift weakens trust in recovered boot artifacts.",
+                    "repro": "Collect synchronized boot logs, cmdline snapshots, and register captures from the same boot.",
+                    "remediation": "Restore expected bootloader lock and verified boot policy before relying on downstream findings.",
+                },
+            )
+        )
+
+    for issue in ab_verification.issues:
+        stage = "slot_verification"
+        if issue.partition == "vbmeta":
+            stage = "avb"
+        elif issue.partition == "recovery":
+            stage = "recovery"
+        elif issue.partition == "boot":
+            stage = "kernel"
+        exposure_scaffold = {
+            "title": f"A/B partition review: {issue.issue}",
+            "impact": issue.rationale,
+            "repro": "Inspect both active and inactive slot artifacts together and compare rollback metadata before triage.",
+            "remediation": "Repair cross-slot inconsistencies and preserve both slot views in the evidence bundle.",
+        }
+        exposures.append(
+            BootChainExposure(
+                component=f"slot_{issue.slot}",
+                stage=stage,
+                trust_boundary="signed_to_signed",
+                exposure=issue.issue,
+                evidence=[item for item in [issue.partition, issue.counterpart_slot, issue.rationale] if item],
+                remediation_focus="Validate active and inactive slot integrity before treating a single-slot result as authoritative.",
+                finding_scaffold=exposure_scaffold,
+            )
+        )
+        scaffolds.append(exposure_scaffold)
+
     return BootChainMap(
         target_id=profile.target_id,
         created_at=utc_now(),
         stage_map=stage_map,
         trust_boundaries=trust_boundaries,
+        fingerprint=fingerprint,
+        ab_verification=ab_verification,
+        operational_report=operational_report,
         exposures=exposures,
         finding_scaffolds=scaffolds,
     )
@@ -86,11 +153,15 @@ def write_bootchain_bundle(output_root: Path, profile: TargetProfile, chain_map:
     output_root.mkdir(parents=True, exist_ok=True)
     map_path = output_root / "bootchain-map.json"
     exposures_path = output_root / "exposures.json"
+    report_path = output_root / "operational-report.json"
     json_dump(map_path, chain_map.model_dump(mode="json"))
     json_dump(exposures_path, [item.model_dump(mode="json") for item in chain_map.exposures])
+    if chain_map.operational_report is not None:
+        json_dump(report_path, chain_map.operational_report.model_dump(mode="json"))
     return {
         "bootchain_map": str(map_path),
         "exposures": str(exposures_path),
+        "operational_report": str(report_path),
     }
 
 

@@ -29,6 +29,7 @@ def build_disclosure_manifest(profile: TargetProfile, chain_map: BootChainMap) -
             "Preserve source bundle hashes and acquisition notes.",
             "Confirm stage ordering and verifier relationships from extracted evidence.",
             "Re-run boot-chain mapping against the same target profile and compare exposure deltas.",
+            "Capture timing traces and hardware/software correlation evidence for any boot anomaly under review.",
         ],
     )
 
@@ -50,11 +51,42 @@ def build_disclosure_report(profile: TargetProfile, chain_map: BootChainMap, man
         "## Evidence",
         *(f"- {artifact['kind']}: {artifact['name']}" for artifact in manifest.artifacts),
         "",
+        "## Operational Telemetry",
+        *(
+            [
+                f"- Memory regions captured: {len(chain_map.operational_report.memory_regions)}",
+                f"- Timing stages analyzed: {len(chain_map.operational_report.timing_analysis)}",
+                f"- Software/hardware correlations: {len(chain_map.operational_report.correlations)}",
+                f"- Historical references matched: {len(chain_map.operational_report.reference_matches)}",
+                *(f"- Anomaly: {item}" for item in chain_map.operational_report.anomalies),
+            ]
+            if chain_map.operational_report is not None
+            else ["- No telemetry report was generated from the supplied metadata."]
+        ),
+        "",
+        "## Historical References",
+        *(
+            [
+                *(
+                    f"- {item.title} ({item.classification}, score={item.score}): "
+                    f"{'; '.join(item.rationale) or 'matched by catalog heuristics'}"
+                    for item in chain_map.operational_report.reference_matches
+                )
+            ]
+            if chain_map.operational_report is not None and chain_map.operational_report.reference_matches
+            else ["- No historical reference catalog matches were emitted for this target."]
+        ),
+        "",
         "## Reproducibility",
         *(f"- {step}" for step in manifest.reproduction_steps),
         "",
         "## Remediation",
         *(f"- {exposure.remediation_focus}" for exposure in chain_map.exposures),
+        *(
+            [*(f"- {item.title}: {item.rationale}" for item in chain_map.operational_report.validation_recommendations)]
+            if chain_map.operational_report is not None
+            else []
+        ),
     ]
     return "\n".join(lines).strip() + "\n"
 

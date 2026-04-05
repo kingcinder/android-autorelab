@@ -167,6 +167,130 @@ class TargetScore(BaseModel):
     rationale: dict[str, float] = Field(default_factory=dict)
 
 
+class FingerprintSignal(BaseModel):
+    source: Literal["boot_log", "kernel_cmdline", "hardware_register"]
+    key: str
+    value: str
+    confidence: float
+    rationale: str
+
+
+class BootEnvironmentFingerprint(BaseModel):
+    bootloader_version: str | None = None
+    device_lock_state: Literal["locked", "unlocked", "mixed", "unknown"] = "unknown"
+    verified_boot_state: Literal["green", "yellow", "orange", "red", "mixed", "unknown"] = "unknown"
+    security_state: Literal["verified", "reduced_assurance", "inconsistent", "unknown"] = "unknown"
+    active_slot: str | None = None
+    inactive_slot: str | None = None
+    evidence: list[FingerprintSignal] = Field(default_factory=list)
+    heuristics: list[str] = Field(default_factory=list)
+
+
+class SlotPartitionSummary(BaseModel):
+    slot: str
+    active: bool = False
+    bootloader_version: str | None = None
+    rollback_index: int | None = None
+    partitions: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+
+class SlotVerificationIssue(BaseModel):
+    slot: str
+    counterpart_slot: str | None = None
+    partition: str | None = None
+    severity: Literal["low", "medium", "high"]
+    issue: str
+    rationale: str
+
+
+class ABPartitionVerification(BaseModel):
+    active_slot: str | None = None
+    inactive_slot: str | None = None
+    slot_summaries: list[SlotPartitionSummary] = Field(default_factory=list)
+    issues: list[SlotVerificationIssue] = Field(default_factory=list)
+
+
+class MemoryHexDump(BaseModel):
+    region: str
+    address: str | None = None
+    source: str = "metadata"
+    hexdump: str
+    notes: list[str] = Field(default_factory=list)
+
+
+class BootStageTiming(BaseModel):
+    stage: str
+    started_ms: int
+    ended_ms: int | None = None
+    duration_ms: int | None = None
+    source: str = "metadata"
+
+
+class EventCorrelation(BaseModel):
+    software_event: str
+    hardware_signal: str
+    software_timestamp_ms: int
+    hardware_timestamp_ms: int
+    delta_ms: int
+    stage: str | None = None
+    interpretation: str
+
+
+class ValidationRecommendation(BaseModel):
+    id: str
+    title: str
+    rationale: str
+    applicability: str
+    steps: list[str] = Field(default_factory=list)
+
+
+class ReferenceLink(BaseModel):
+    label: str
+    url: str
+
+
+class ExploitReference(BaseModel):
+    id: str
+    title: str
+    collection_kind: str
+    summary: str
+    analysis_only: bool = True
+    cves: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    vendor_hints: list[str] = Field(default_factory=list)
+    stage_hints: list[str] = Field(default_factory=list)
+    issue_hints: list[str] = Field(default_factory=list)
+    lock_state_hints: list[str] = Field(default_factory=list)
+    verified_boot_state_hints: list[str] = Field(default_factory=list)
+    keyword_hints: list[str] = Field(default_factory=list)
+    validation_focus: list[str] = Field(default_factory=list)
+    references: list[ReferenceLink] = Field(default_factory=list)
+
+
+class ExploitReferenceMatch(BaseModel):
+    id: str
+    title: str
+    collection_kind: str
+    classification: Literal["applicable", "possibly_applicable"]
+    score: float
+    rationale: list[str] = Field(default_factory=list)
+    analysis_only: bool = True
+    cves: list[str] = Field(default_factory=list)
+    validation_focus: list[str] = Field(default_factory=list)
+    references: list[ReferenceLink] = Field(default_factory=list)
+
+
+class BootOperationalReport(BaseModel):
+    target_id: str
+    generated_at: str
+    memory_regions: list[MemoryHexDump] = Field(default_factory=list)
+    timing_analysis: list[BootStageTiming] = Field(default_factory=list)
+    correlations: list[EventCorrelation] = Field(default_factory=list)
+    anomalies: list[str] = Field(default_factory=list)
+    validation_recommendations: list[ValidationRecommendation] = Field(default_factory=list)
+    reference_matches: list[ExploitReferenceMatch] = Field(default_factory=list)
+
+
 class BootChainExposure(BaseModel):
     component: str
     stage: str
@@ -187,6 +311,9 @@ class BootChainMap(BaseModel):
     created_at: str
     stage_map: dict[str, list[str]] = Field(default_factory=dict)
     trust_boundaries: list[dict[str, Any]] = Field(default_factory=list)
+    fingerprint: BootEnvironmentFingerprint | None = None
+    ab_verification: ABPartitionVerification | None = None
+    operational_report: BootOperationalReport | None = None
     exposures: list[BootChainExposure] = Field(default_factory=list)
     finding_scaffolds: list[dict[str, str]] = Field(default_factory=list)
 

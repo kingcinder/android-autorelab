@@ -11,7 +11,7 @@ def test_workflow_configs_present() -> None:
     assert agency.mode == "serial"
     assert legion.mode == "parallel"
     assert agency.router["models_max"] == 1
-    assert legion.router["models_max"] == 3
+    assert legion.router["models_max"] == 7
 
 
 def test_settings_runs_root_is_workflow_scoped() -> None:

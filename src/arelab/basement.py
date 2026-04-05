@@ -98,10 +98,14 @@ def prepare_basement(
         mapping_dir.mkdir(parents=True, exist_ok=True)
         map_path = mapping_dir / "bootchain-map.json"
         exposures_path = mapping_dir / "exposures.json"
+        report_path = mapping_dir / "operational-report.json"
         json_dump(map_path, bootchain_map.model_dump(mode="json"))
         json_dump(exposures_path, [item.model_dump(mode="json") for item in bootchain_map.exposures])
         index["bootchain_map"] = str(map_path)
         index["exposures"] = str(exposures_path)
+        if bootchain_map.operational_report is not None:
+            json_dump(report_path, bootchain_map.operational_report.model_dump(mode="json"))
+            index["operational_report"] = str(report_path)
 
     if disclosure_manifest is not None:
         disclosure_dir = root / "disclosure"

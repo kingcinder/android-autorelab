@@ -46,3 +46,48 @@ boot_components:
 metadata:
   synthetic: true
   priority_hint: secondary
+  boot_logs:
+    - |
+      Bootloader version: T3RBS33.001
+      Device state: unlocked
+      Verified boot state: orange
+      Slot suffix: _b
+  kernel_cmdline:
+    - androidboot.bootloader=T3RBS33.001 androidboot.flash.locked=0 androidboot.verifiedbootstate=orange androidboot.slot_suffix=_b
+  hardware_registers:
+    xbl_version: T3RBS33.001
+    oem_lock: unlocked
+    verified_boot_color: orange
+  memory_regions:
+    - region: xbl_control
+      address: "0x0008C000"
+      bytes_hex: "deadbeef01020304feed1234567890abcdef00112233445566778899aabb"
+      notes: ["Synthetic preloader state excerpt."]
+  boot_timeline:
+    - stage: rom
+      started_ms: 0
+      ended_ms: 28
+    - stage: preloader
+      started_ms: 29
+      ended_ms: 172
+    - stage: bootloader
+      started_ms: 173
+      ended_ms: 701
+  software_events:
+    - stage: bootloader
+      timestamp_ms: 240
+      event: unlocked device policy branch
+  hardware_signals:
+    - stage: bootloader
+      timestamp_ms: 254
+      signal: tamper GPIO asserted
+  slots:
+    b:
+      active: true
+      bootloader_version: T3RBS33.001
+      rollback_index: 4
+      partitions:
+        vbmeta:
+          sha256: moto-slot-b-vbmeta
+        boot:
+          sha256: moto-slot-b-boot

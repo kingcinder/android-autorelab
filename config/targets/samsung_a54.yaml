@@ -62,3 +62,75 @@ boot_components:
 metadata:
   synthetic: true
   priority_hint: primary
+  boot_logs:
+    - |
+      Samsung bootloader version: A546BXXS8XYZ
+      Device state: locked
+      Verified boot state: green
+      Slot suffix: _a
+  kernel_cmdline:
+    - androidboot.bootloader=A546BXXS8XYZ androidboot.flash.locked=1 androidboot.verifiedbootstate=green androidboot.slot_suffix=_a
+  hardware_registers:
+    sboot_version: A546BXXS8XYZ
+    flash_locked: "1"
+    avb_state: green
+  memory_regions:
+    - region: bootloader_control
+      address: "0x0010A000"
+      bytes_hex: "feedface01020304a546112233445566778899aabbccddeeff001122334455"
+      notes: ["Synthetic bootloader control block excerpt."]
+    - region: vbmeta_header
+      address: "0x0020F000"
+      bytes_hex: "4156423001000000deadc0de11223344556677889900aabbccddeeff"
+      notes: ["Synthetic AVB header bytes."]
+  boot_timeline:
+    - stage: rom
+      started_ms: 0
+      ended_ms: 32
+    - stage: preloader
+      started_ms: 33
+      ended_ms: 148
+    - stage: bootloader
+      started_ms: 149
+      ended_ms: 612
+    - stage: avb
+      started_ms: 613
+      ended_ms: 731
+  software_events:
+    - stage: bootloader
+      timestamp_ms: 188
+      event: abl policy load
+    - stage: avb
+      timestamp_ms: 645
+      event: vbmeta digest verify
+  hardware_signals:
+    - stage: bootloader
+      timestamp_ms: 181
+      signal: eMMC ready
+    - stage: avb
+      timestamp_ms: 651
+      signal: AVB fuse sample
+  slots:
+    a:
+      active: true
+      bootloader_version: A546BXXS8XYZ
+      rollback_index: 9
+      partitions:
+        vbmeta:
+          sha256: samsung-slot-a-vbmeta
+        recovery:
+          sha256: samsung-slot-a-recovery
+        boot:
+          sha256: samsung-slot-a-boot
+    b:
+      active: false
+      bootloader_version: A546BXXS8XYW
+      rollback_index: 7
+      partitions:
+        vbmeta:
+          sha256: samsung-slot-b-vbmeta
+        recovery:
+          sha256: samsung-slot-b-recovery
+          corruption_flag: true
+        boot:
+          sha256: samsung-slot-a-boot

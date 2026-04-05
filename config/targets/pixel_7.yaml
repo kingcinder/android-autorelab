@@ -51,3 +51,70 @@ boot_components:
 metadata:
   synthetic: true
   priority_hint: primary
+  boot_logs:
+    - |
+      bootloader version: TQ3A.240205.001
+      device state: locked
+      verified boot state: green
+      slot suffix: _b
+  kernel_cmdline:
+    - androidboot.bootloader=TQ3A.240205.001 androidboot.flash.locked=1 androidboot.verifiedbootstate=green androidboot.slot_suffix=_b
+  hardware_registers:
+    bl2_version: TQ3A.240205.001
+    device_state: locked
+    avb_color: green
+  memory_regions:
+    - region: tensor_boot_config
+      address: "0x000FE000"
+      bytes_hex: "00112233445566778899aabbccddeeff0102030405060708090a0b0c0d0e0f"
+      notes: ["Synthetic Tensor boot configuration excerpt."]
+  boot_timeline:
+    - stage: rom
+      started_ms: 0
+      ended_ms: 24
+    - stage: preloader
+      started_ms: 25
+      ended_ms: 139
+    - stage: bootloader
+      started_ms: 140
+      ended_ms: 302
+    - stage: avb
+      started_ms: 303
+      ended_ms: 386
+  software_events:
+    - stage: bootloader
+      timestamp_ms: 190
+      event: bl2 policy sync
+    - stage: avb
+      timestamp_ms: 330
+      event: vbmeta chain verify
+  hardware_signals:
+    - stage: bootloader
+      timestamp_ms: 186
+      signal: UFS link stable
+    - stage: avb
+      timestamp_ms: 341
+      signal: AVB digest sample
+  slots:
+    a:
+      active: false
+      bootloader_version: TQ3A.240205.001
+      rollback_index: 12
+      partitions:
+        vbmeta:
+          sha256: pixel-slot-common-vbmeta
+        recovery:
+          sha256: pixel-slot-common-recovery
+        boot:
+          sha256: pixel-slot-a-boot
+    b:
+      active: true
+      bootloader_version: TQ3A.240205.001
+      rollback_index: 12
+      partitions:
+        vbmeta:
+          sha256: pixel-slot-common-vbmeta
+        recovery:
+          sha256: pixel-slot-common-recovery
+        boot:
+          sha256: pixel-slot-b-boot

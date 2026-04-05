@@ -1,90 +1,217 @@
 # android-autorelab
 
-`android-autorelab` is a local-first Android reverse-engineering lab suite for defensive, authorized analysis. It ingests firmware-related inputs, distills them into structured evidence, and emits ranked Security Weakness Assessment Points (SWAPs) with remediation intent instead of exploit guidance.
+`android-autorelab` is a local-first Android reverse-engineering lab suite for authorized, defensive analysis. It normalizes intake context, preserves provenance, runs workflow-scoped analysis, and emits evidence-backed Security Weakness Assessment Points (SWAPs) and disclosure scaffolds rather than exploit guidance.
 
-## What it does
+## Current shape
 
-- Accepts directories, archives, partition images, and binary artifacts.
-- Preserves a run bundle under `runs/<timestamp>/` with logs, prompts, artifacts, and reports.
-- Uses read-only analysis defaults and records every tool and model interaction.
-- Produces `report.md` and `report.json` with evidence, reachability rationale, and fix-oriented recommendations.
-- Includes a reproducible proof run that builds a demo binary with intentionally unsafe patterns and verifies the pipeline can flag them.
+- The first served screen is a shared intake routing splash at `/`, not the run ledger.
+- Intake remains workflow-neutral until the user explicitly binds the session to `The Agency` or `The Legion`.
+- Workflow outputs stay separated under `runs/agency/...` and `runs/legion/...`.
+- `The Basement` is a shared subordinate utility layer, but its outputs remain scoped under `runs/<workflow>/basement/...`.
+- The run ledger remains available at `/runs`.
+
+## Core concepts
+
+### Shared intake
+
+The startup flow supports three intake modes before workflow selection:
+
+- Acquire from physical target device
+- Load saved project
+- Load reference file or reference file set
+
+Each intake session records:
+
+- what was provided
+- what was inferred
+- what remains unknown
+- provenance and acquisition notes
+
+Reference wording explicitly supports cases such as downloaded firmware files, vendor firmware packages, extracted images, prior evidence bundles, and normalized metadata bundles.
+
+### The Agency and The Legion
+
+Two primary workflows exist and remain exclusive:
+
+- `The Agency`: serial deep-audit workflow, router port `18081`, `models_max: 1`
+- `The Legion`: parallel swarm workflow, router port `18082`, `models_max: 3`
+
+Both workflows enforce separation through workflow-scoped run roots, locks, and router startup rules.
+
+### The Basement
+
+`The Basement` is not a third workflow. It is a shared subordinate routine layer used for:
+
+- intake support
+- normalization support
+- evidence organization
+- mapping support
+- validation support
+- reproducibility scaffolding
+- disclosure preparation support
+
+Outputs stay under the invoking workflow:
+
+- `runs/agency/<run_id>/basement/...`
+- `runs/legion/<run_id>/basement/...`
+
+## Repo layout
+
+```text
+config/
+  targets/
+  workflows/
+docs/
+scripts/
+src/arelab/
+templates/
+runs/
+  agency/
+  legion/
+```
+
+Useful docs:
+
+- [docs/target-intake.md](docs/target-intake.md)
+- [docs/boot-chain-research.md](docs/boot-chain-research.md)
+
+## Installation
+
+### Python environment
+
+The repo expects Python 3.12+ and creates a local `.venv`:
+
+```bash
+./scripts/install.sh
+```
+
+The installer sets up the editable package and verifies the core Python stack. It does not commit local machine configuration.
+
+### External tools
+
+For full shell verification, the host toolchain should provide:
+
+- `binwalk`
+- `file`
+- `strings`
+- `gcc`
+- Ghidra headless (`analyzeHeadless`)
+- a local `llama-server` backend with access to the configured models
+
+Tool detection prefers:
+
+1. explicit local overrides
+2. discovered executables on `PATH`
+3. adjacent Ghidra support paths when a Ghidra launcher is discovered
+
+If host-specific overrides are needed, use a local untracked `config/local-overrides.yaml`.
 
 ## Quick start
 
+### Serve the UI
+
 ```bash
-cd android-autorelab
-./scripts/install.sh
-./scripts/verify.sh
+arelab --repo-root . serve --host 127.0.0.1 --port 8765
 ```
 
-## CLI
+Then open:
+
+- `/` for the shared intake splash
+- `/runs` for the run ledger
+
+### CLI entrypoints
 
 ```bash
-arelab run --input /path/to/artifact --profile overnight
-arelab demo --profile overnight
+arelab run --input /path/to/artifact --profile fast
+arelab demo --profile fast
 arelab status <run_id>
 arelab report <run_id> --format md
-arelab serve --host 127.0.0.1 --port 8765
 agencyctl run --input /path/to/artifact --profile deep
 legionctl run --input /path/to/artifact --profile overnight
 ```
 
-## Workflows
-
-Two exclusive workflow states are now modeled inside the same repo:
-
-- `The Agency`: serial deep pipeline with router `models_max: 1`, explicit stage order `planner -> decompile_refine -> primary auditor -> arbiter`, dedicated config in `config/workflows/agency.yaml`, launcher scripts in `scripts/start_agency.sh` and `scripts/verify_agency.sh`, and the `agency.service` user unit in `services/agency.service`.
-- `The Legion`: lane-based parallel workflow with router `models_max: 3`, dedicated config in `config/workflows/legion.yaml`, launcher scripts in `scripts/start_legion.sh` and `scripts/verify_legion.sh`, and the `legion.service` user unit in `services/legion.service`.
-
-Both workflows are guarded by the runtime lock in `src/arelab/locks.py` and user-level `systemd` unit conflicts so they do not co-run.
-
-Useful commands:
+### Target scaffold commands
 
 ```bash
-./scripts/start_agency.sh
-./scripts/stop_agency.sh
-./scripts/start_legion.sh
-./scripts/stop_legion.sh
-./scripts/verify_agency.sh
-./scripts/verify_legion.sh
+intake_target --config-dir config/targets --target-id samsung-a54-synthetic-001 --output target-intake.json
+score_targets --config-dir config/targets --output target-scores.json
+map_bootchain --config-dir config/targets --target-id google-pixel7-synthetic-001 --output bootchain.json
 ```
 
-Agency-specific notes:
+These commands restore the boot-chain scaffold for:
 
-- `agencyctl` is the serial workflow entrypoint and keeps the router to a single loaded model while stages rotate.
-- `scripts/verify_agency.sh` proves two things: `agency.service` displaces `legion.service` when user `systemd` is available, and the Agency proof run completes with only one loaded model at a time from the configured serial stage list.
+- target normalization
+- defensive target prioritization
+- boot-stage and trust-boundary mapping
+- disclosure/evidence scaffolding
 
-### Legion operations
+## Verification
 
-`The Legion` is the parallel swarm state described in the workflow spec:
+### Shared and workflow-specific
 
-- Router mode runs on `127.0.0.1:18082` with `models_max: 3`, `ctx_size: 4096`, `autoload: false`, and explicit `/models/load` + `/models/unload` verification from `scripts/workflow_verify.py`.
-- `services/legion.service` hard-conflicts with `agency.service`, starts only after an explicit Agency stop pre-step, and uses the foreground Legion launcher for user-service installs.
-- `scripts/start_legion.sh` clears stale workflow lock state, stops any Agency launcher first, and then starts the Legion router. `scripts/stop_legion.sh` clears only Legion-owned runtime state.
-- `scripts/verify_legion.sh` proves exclusivity, checks `/models`, loads and unloads the configured Legion verification models, records RSS snapshots for the router process tree, and then runs a Legion demo proof report under `runs/legion/`.
+```bash
+./scripts/verify_shared.sh
+./scripts/verify_agency.sh
+./scripts/verify_legion.sh
+./scripts/verify.sh
+```
 
-## Model gateway
+`verify.sh` is the top-level shell path. It runs the shared verifier, the Agency verifier, and the Legion verifier end to end.
 
-The suite reads:
+The workflow verifiers prove:
 
-- `ARELAB_OPENAI_BASE_URL` defaulting to `http://127.0.0.1:10000/v1`
-- `ARELAB_OPENAI_API_KEY` defaulting to `none`
+- router startup and readiness
+- workflow exclusivity
+- model load and unload behavior
+- proof-run report generation
+- workflow-scoped output separation
 
-If the default endpoint is unavailable, the gateway also probes `http://127.0.0.1:8000/v1`, which matches the current local llama.cpp stack on this workstation.
+### Windows notes
 
-Logical model roles can be pinned in `config/models.yaml`.
-Workflow-specific routing, ports, and mode policies live under `config/workflows/`.
+The repo has been verified locally on Windows with:
 
-## Tooling notes
+- PowerShell
+- Git Bash for shell scripts
+- workflow-scoped temp/runtime state
+- detached router launch via Python rather than shell job control
+- process-tree cleanup and liveness checks via `psutil`
 
-- `binwalk`, `simg2img`, and Ghidra headless are auto-detected when installed.
-- `lpunpack`, `unpack_bootimg.py`, and `avbtool` are exposed through repo-local wrappers so install/verify can standardize usage even before optional system tools are added.
-- `angr` is optional at import time but installed by `scripts/install.sh` for CFG extraction.
+Windows-safe repo paths are handled in the shell helpers and Python router/lock tooling. Avoid committing host-local overrides.
+
+## Configuration
+
+Tracked config lives under:
+
+- `config/workflows/agency.yaml`
+- `config/workflows/legion.yaml`
+- `config/models.yaml`
+- `config/tools.yaml`
+- `config/policies.yaml`
+
+Common local override use cases:
+
+- router model directory
+- selected verification model
+- `llama-server` binary path
+- `analyzeHeadless` path
+- tool overrides such as `binwalk`, `gcc`, `strings`, `nm`, or `objdump`
+
+Local overrides belong in `config/local-overrides.yaml`, which is intentionally kept out of tracked content.
 
 ## Safety stance
 
-- No exploit generation, payloads, or compromise playbooks.
-- No flashing, unlocking, rooting, or AVB bypass workflows.
-- Read-only by default; privileged operations remain explicit and logged.
-- Reports provide reproducible evidence and remediation intent only.
+- authorized analysis only
+- no exploit generation
+- no flashing, rooting, or bypass workflows
+- read-only defaults
+- provenance, evidence handling, and remediation-oriented reporting
+
+## Synthetic target examples
+
+The restored scaffold includes example target profiles such as:
+
+- `samsung-a54-synthetic-001`
+- `motorola-gpower-synthetic-001`
+- `google-pixel7-synthetic-001`
+
+These are for defensive research scaffolding and verification only.

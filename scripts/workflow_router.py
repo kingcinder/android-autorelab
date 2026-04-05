@@ -130,7 +130,7 @@ def start_router(workflow: str, foreground: bool) -> int:
     try:
         acquire_workflow_lock(workflow, "router")
     except Exception as exc:  # noqa: BLE001
-        print(json.dumps({"error": str(exc), "active": read_active_workflow()}, indent=2), file=sys.stderr)
+        print(json.dumps({"error": str(exc), "active": read_active_workflow(workflow)}, indent=2), file=sys.stderr)
         return 2
     pid_file = pid_path(workflow)
     if pid_file.exists():

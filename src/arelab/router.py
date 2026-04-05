@@ -234,7 +234,7 @@ def build_router_command(settings: Settings, llama_bin: Path) -> list[str]:
 
 def run_router_foreground(repo_root: Path, workflow: str, llama_bin: Path) -> int:
     settings = Settings.load(repo_root, workflow=workflow)
-    active = read_active_workflow() or {}
+    active = read_active_workflow(workflow) or {}
     active_pid = int(active.get("pid", 0) or 0)
     if (
         active.get("workflow") == workflow

@@ -18,14 +18,25 @@ def _runtime_dir() -> Path:
     return Path(tempfile.gettempdir()) / f"android-autorelab-{owner}"
 
 
-def state_path() -> Path:
+def _workflow_state_path(workflow: str) -> Path:
+    path = _runtime_dir()
+    path.mkdir(parents=True, exist_ok=True)
+    return path / f"active-workflow-{workflow}.json"
+
+
+def _legacy_state_path() -> Path:
     path = _runtime_dir()
     path.mkdir(parents=True, exist_ok=True)
     return path / "active-workflow.json"
 
 
-def read_active_workflow() -> dict[str, object] | None:
-    path = state_path()
+def state_path(workflow: str | None = None) -> Path:
+    if workflow:
+        return _workflow_state_path(workflow)
+    return _legacy_state_path()
+
+
+def _read_payload(path: Path) -> dict[str, object] | None:
     if not path.exists():
         return None
     try:
@@ -34,23 +45,42 @@ def read_active_workflow() -> dict[str, object] | None:
         return None
 
 
+def _lock_paths() -> list[Path]:
+    runtime = _runtime_dir()
+    runtime.mkdir(parents=True, exist_ok=True)
+    paths = sorted(runtime.glob("active-workflow-*.json"))
+    legacy = _legacy_state_path()
+    if legacy.exists():
+        paths.append(legacy)
+    return paths
+
+
+def read_active_workflow(workflow: str | None = None) -> dict[str, object] | None:
+    if workflow:
+        return _read_payload(_workflow_state_path(workflow))
+    for path in _lock_paths():
+        payload = _read_payload(path)
+        if payload:
+            return payload
+    return None
+
+
 def clear_workflow_lock(expected_workflow: str | None = None) -> None:
-    path = state_path()
-    if not path.exists():
+    if expected_workflow:
+        current = read_active_workflow(expected_workflow) or {}
+        if not current or current.get("workflow") in {expected_workflow, None}:
+            _workflow_state_path(expected_workflow).unlink(missing_ok=True)
+        legacy = _read_payload(_legacy_state_path()) or {}
+        if legacy.get("workflow") in {expected_workflow, None}:
+            _legacy_state_path().unlink(missing_ok=True)
         return
-    current = read_active_workflow() or {}
-    if expected_workflow and current.get("workflow") not in {expected_workflow, None}:
-        return
-    path.unlink(missing_ok=True)
+    for path in _lock_paths():
+        path.unlink(missing_ok=True)
 
 
 def acquire_workflow_lock(workflow: str, owner: str) -> bool:
-    path = state_path()
-    active = read_active_workflow()
-    if active and active.get("workflow") not in {None, workflow} and _pid_alive(int(active.get("pid", 0))):
-        raise RuntimeError(
-            f"Workflow lock is held by {active.get('workflow')} (pid={active.get('pid')})"
-        )
+    path = _workflow_state_path(workflow)
+    active = read_active_workflow(workflow)
     if active and active.get("workflow") == workflow and _pid_alive(int(active.get("pid", 0))):
         return False
     payload = {
@@ -69,7 +99,7 @@ def workflow_lock(workflow: str, owner: str):
     try:
         yield
     finally:
-        current = read_active_workflow() or {}
+        current = read_active_workflow(workflow) or {}
         if created and current.get("pid") == os.getpid():
             clear_workflow_lock(workflow)
 

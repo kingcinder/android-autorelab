@@ -108,7 +108,7 @@ def _launcher_pid(workflow: str) -> int | None:
     try:
         return int(pid_file.read_text(encoding="utf-8").strip())
     except Exception:  # noqa: BLE001
-        active = read_active_workflow() or {}
+        active = read_active_workflow(workflow) or {}
         if active.get("workflow") == workflow:
             try:
                 return int(active.get("pid", 0) or 0) or None
@@ -128,7 +128,7 @@ def _pid_alive(pid: int | None) -> bool:
 
 
 def _lock_state(workflow: str) -> dict[str, object]:
-    active = read_active_workflow() or {}
+    active = read_active_workflow(workflow) or {}
     if active.get("workflow") != workflow:
         raise RuntimeError(f"active workflow lock mismatch: expected {workflow}, got {active or None}")
     active_pid = int(active.get("pid", 0) or 0)

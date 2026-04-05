@@ -6,20 +6,27 @@ from arelab.config import Settings
 from arelab.runner import command_path
 
 
+def _adjacent_analyze_headless(launcher: str | None) -> str | None:
+    if not launcher:
+        return None
+    launcher_path = Path(launcher).resolve()
+    support_dir = launcher_path.parent / "support"
+    candidates = [
+        support_dir / "analyzeHeadless",
+        support_dir / "analyzeHeadless.bat",
+        support_dir / "analyzeHeadless.sh",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return None
+
+
 def detect_tools(settings: Settings) -> dict[str, str | None]:
     repo = settings.repo_root
     overrides = settings.tool_overrides
     ghidra_launcher = overrides.get("ghidra") or command_path("ghidra")
-    analyze_headless = None
-    if ghidra_launcher:
-        launcher_path = Path(ghidra_launcher).resolve()
-        candidate = launcher_path.parent.parent / "opt" / "ghidra-current" / "support" / "analyzeHeadless"
-        if candidate.exists():
-            analyze_headless = str(candidate)
-    if not analyze_headless:
-        fallback = Path.home() / ".local/opt/ghidra-current/support/analyzeHeadless"
-        if fallback.exists():
-            analyze_headless = str(fallback)
+    analyze_headless = _adjacent_analyze_headless(ghidra_launcher)
     tools = {
         "binwalk": overrides.get("binwalk") or command_path("binwalk"),
         "simg2img": overrides.get("simg2img") or command_path("simg2img"),

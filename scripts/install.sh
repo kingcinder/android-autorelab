@@ -142,6 +142,20 @@ install_editable_package() {
   pass "Editable package installed"
 }
 
+detect_analyze_headless() {
+  "$PYTHON_VENV_BIN" - <<'PY' "$ROOT_DIR"
+import sys
+from pathlib import Path
+
+from arelab.config import Settings
+from arelab.tooling import detect_tools
+
+root = Path(sys.argv[1]).resolve()
+settings = Settings.load(root)
+print(detect_tools(settings).get("analyzeHeadless") or "")
+PY
+}
+
 need_cmd "$PYTHON_BIN"
 
 if command -v apt-get >/dev/null 2>&1; then
@@ -192,10 +206,11 @@ pass "Python environment installed"
 
 chmod +x "$ROOT_DIR"/scripts/*.sh "$ROOT_DIR"/scripts/*.py
 
-if [ -x "$HOME/.local/opt/ghidra-current/support/analyzeHeadless" ]; then
+ANALYZE_HEADLESS="$(detect_analyze_headless)"
+if [ -n "$ANALYZE_HEADLESS" ] && [ -x "$ANALYZE_HEADLESS" ]; then
   pass "Ghidra headless detected"
 else
-  warn "Ghidra headless not found at ~/.local/opt/ghidra-current/support/analyzeHeadless"
+  warn "Ghidra headless not auto-detected; configure analyzeHeadless explicitly if required"
 fi
 
 ROOT_DIR_ENV="$ROOT_DIR" python3 - <<'PY'
@@ -215,8 +230,8 @@ need_cmd binwalk
 need_cmd file
 need_cmd strings
 need_cmd gcc
-[ -x "${HOME}/.local/opt/ghidra-current/support/analyzeHeadless" ] || {
-  printf '[FAIL] missing Ghidra analyzeHeadless under %s\n' "$HOME/.local/opt/ghidra-current/support/analyzeHeadless" >&2
+[ -n "$ANALYZE_HEADLESS" ] && [ -x "$ANALYZE_HEADLESS" ] || {
+  printf '[FAIL] missing Ghidra analyzeHeadless; configure a valid analyzeHeadless path or place it next to a detected Ghidra launcher\n' >&2
   exit 1
 }
 pass "Base smoke tests passed"

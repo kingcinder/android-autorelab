@@ -4,27 +4,23 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/venv_paths.sh"
 PYTHON_BIN="$VENV_PYTHON"
-if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
-  STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
-else
-  STATE_DIR="/tmp/android-autorelab-$(id -u)"
-fi
+[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python under $ROOT_DIR/.venv" >&2; exit 1; }
+STATE_DIR="$(runtime_state_dir)"
 PID_FILE="$STATE_DIR/legion-router.pid"
 LOG_FILE="$STATE_DIR/legion-router.log"
-LOCK_FILE="$STATE_DIR/active-workflow.json"
+LOCK_FILE="$(workflow_lock_path legion)"
 PORT=18082
 mkdir -p "$STATE_DIR"
 umask 077
 
-[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python under $ROOT_DIR/.venv" >&2; exit 1; }
-
 MODE="${1:-background}"
 if [ -f "$LOCK_FILE" ]; then
-  python3 - <<'PY' "$LOCK_FILE"
+  "$PYTHON_BIN" - <<'PY' "$LOCK_FILE"
 import json
-import os
 import sys
 from pathlib import Path
+
+from arelab.locks import pid_alive
 
 path = Path(sys.argv[1])
 try:
@@ -35,12 +31,7 @@ except Exception:
 
 pid = int(payload.get("pid", 0) or 0)
 workflow = payload.get("workflow")
-alive = pid > 0
-if alive:
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        alive = False
+alive = pid_alive(pid)
 if not alive:
     path.unlink(missing_ok=True)
 PY
@@ -79,22 +70,27 @@ PY
 router_wrapper_alive() {
   local pid="${1:-}"
   [ -n "$pid" ] || return 1
-  kill -0 "$pid" 2>/dev/null || return 1
-  local cmdline=""
-  if [ -r "/proc/$pid/cmdline" ]; then
-    cmdline="$(tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null || true)"
-  else
-    cmdline="$(ps -p "$pid" -o args= 2>/dev/null || true)"
-  fi
-  [[ "$cmdline" == *"run_router.py"* && "$cmdline" == *"--workflow legion"* ]]
+  "$PYTHON_BIN" - <<'PY' "$pid"
+import sys
+
+import psutil
+
+pid = int(sys.argv[1])
+try:
+    cmdline = " ".join(psutil.Process(pid).cmdline())
+except psutil.Error:
+    raise SystemExit(1)
+raise SystemExit(0 if "run_router.py" in cmdline and "--workflow legion" in cmdline else 1)
+PY
 }
 
 workflow_lock_ready() {
   "$PYTHON_BIN" - <<'PY' "$LOCK_FILE" "legion"
 import json
-import os
 import sys
 from pathlib import Path
+
+from arelab.locks import pid_alive
 
 path = Path(sys.argv[1])
 workflow = sys.argv[2]
@@ -109,9 +105,7 @@ if payload.get("workflow") != workflow:
 pid = int(payload.get("pid", 0) or 0)
 if pid <= 0:
     raise SystemExit(1)
-try:
-    os.kill(pid, 0)
-except OSError:
+if not pid_alive(pid):
     raise SystemExit(1)
 raise SystemExit(0)
 PY
@@ -154,9 +148,7 @@ if [ "$MODE" = "--foreground" ]; then
   exec "${CMD[@]}"
 fi
 
-nohup setsid "${CMD[@]}" >>"$LOG_FILE" 2>&1 </dev/null &
-ROUTER_PID=$!
-disown "$ROUTER_PID" 2>/dev/null || true
+ROUTER_PID="$(launch_detached "$LOG_FILE" "${CMD[@]}")"
 echo "$ROUTER_PID" >"$PID_FILE"
 READY=0
 for _ in $(seq 1 45); do

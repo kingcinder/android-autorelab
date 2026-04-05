@@ -17,6 +17,7 @@ config/local-overrides.yaml
 artifacts/
 checkpoints/
 dist/
+models/
 
 # Local backups
 archive/

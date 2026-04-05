@@ -4,12 +4,9 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/venv_paths.sh"
 PYTHON_BIN="$VENV_PYTHON"
-if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
-  STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
-else
-  STATE_DIR="/tmp/android-autorelab-$(id -u)"
-fi
-ACTIVE_LOCK="$STATE_DIR/active-workflow.json"
+[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python under $ROOT_DIR/.venv" >&2; exit 1; }
+STATE_DIR="$(runtime_state_dir)"
+ACTIVE_LOCK="$(workflow_lock_path agency)"
 PORT=18081
 
 have_user_systemd() {
@@ -47,20 +44,30 @@ assert_pid_matches() {
   [ -f "$pid_file" ] || { echo "[FAIL] missing pid file: $pid_file" >&2; exit 1; }
   local pid
   pid="$(cat "$pid_file")"
-  kill -0 "$pid" 2>/dev/null || { echo "[FAIL] router pid not alive for $workflow: $pid" >&2; exit 1; }
-  ps -p "$pid" -o args= | grep -F "run_router.py" | grep -F "$workflow" >/dev/null || {
-    echo "[FAIL] pid $pid is not the expected $workflow router wrapper" >&2
-    exit 1
-  }
+  "$PYTHON_BIN" - <<'PY' "$pid" "$workflow"
+import sys
+
+import psutil
+
+pid = int(sys.argv[1])
+workflow = sys.argv[2]
+try:
+    cmdline = " ".join(psutil.Process(pid).cmdline())
+except psutil.Error as exc:
+    raise SystemExit(f"[FAIL] router pid not alive for {workflow}: {pid}") from exc
+if "run_router.py" not in cmdline or workflow not in cmdline:
+    raise SystemExit(f"[FAIL] pid {pid} is not the expected {workflow} router wrapper: {cmdline}")
+PY
 }
 
 assert_lock_workflow() {
   local workflow="$1"
   "$PYTHON_BIN" - <<'PY' "$ACTIVE_LOCK" "$workflow"
 import json
-import os
 import sys
 from pathlib import Path
+
+from arelab.locks import pid_alive
 
 path = Path(sys.argv[1])
 workflow = sys.argv[2]
@@ -72,10 +79,8 @@ if payload.get("workflow") != workflow:
 pid = int(payload.get("pid", 0) or 0)
 if pid <= 0:
     raise SystemExit(f"[FAIL] active workflow lock has invalid pid: {payload}")
-try:
-    os.kill(pid, 0)
-except OSError as exc:
-    raise SystemExit(f"[FAIL] active workflow lock pid is dead: {payload}") from exc
+if not pid_alive(pid):
+    raise SystemExit(f"[FAIL] active workflow lock pid is dead: {payload}")
 PY
 }
 

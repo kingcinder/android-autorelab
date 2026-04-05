@@ -4,12 +4,8 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/venv_paths.sh"
 PYTHON_BIN="$VENV_PYTHON"
-if [ -n "${XDG_RUNTIME_DIR:-}" ]; then
-  STATE_DIR="$XDG_RUNTIME_DIR/android-autorelab"
-else
-  STATE_DIR="/tmp/android-autorelab-$(id -u)"
-fi
-ACTIVE_LOCK="$STATE_DIR/active-workflow.json"
+[ -n "$PYTHON_BIN" ] || { echo "[FAIL] missing virtualenv python under $ROOT_DIR/.venv" >&2; exit 1; }
+STATE_DIR="$(runtime_state_dir)"
 
 wait_for_router() {
   local url="$1"
@@ -27,15 +23,19 @@ wait_for_router() {
 
 wait_for_reset() {
   local deadline=$((SECONDS + 30))
-  while [ "$SECONDS" -lt "$deadline" ]; do
-    if [ ! -f "$ACTIVE_LOCK" ] &&
+ while [ "$SECONDS" -lt "$deadline" ]; do
+    if "$PYTHON_BIN" - <<'PY'
+from arelab.locks import read_active_workflow
+raise SystemExit(0 if read_active_workflow() is None else 1)
+PY
       ! pgrep -f "$ROOT_DIR/.venv.*/arelab" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/.venv.*/agencyctl" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/.venv.*/legionctl" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/scripts/run_router.py --repo-root $ROOT_DIR --workflow agency" >/dev/null 2>&1 &&
       ! pgrep -f "$ROOT_DIR/scripts/run_router.py --repo-root $ROOT_DIR --workflow legion" >/dev/null 2>&1 &&
       ! pgrep -f "llama-server.*--port 18081" >/dev/null 2>&1 &&
-      ! pgrep -f "llama-server.*--port 18082" >/dev/null 2>&1; then
+      ! pgrep -f "llama-server.*--port 18082" >/dev/null 2>&1
+    then
       return 0
     fi
     sleep 1

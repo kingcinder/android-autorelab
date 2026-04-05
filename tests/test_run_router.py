@@ -13,7 +13,7 @@ default_llama_bin = MODULE.default_llama_bin
 
 def test_resolve_llama_bin_preserves_bare_binary_name() -> None:
     resolved = resolve_llama_bin("llama-server")
-    assert resolved.name == "llama-server"
+    assert resolved.stem == "llama-server"
     assert "android-autorelab" not in str(resolved)
 
 

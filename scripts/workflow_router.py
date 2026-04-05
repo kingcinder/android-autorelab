@@ -19,7 +19,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from arelab.config import Settings  # noqa: E402
-from arelab.locks import acquire_workflow_lock, clear_workflow_lock, read_active_workflow  # noqa: E402
+from arelab.locks import acquire_workflow_lock, clear_workflow_lock, pid_alive, read_active_workflow  # noqa: E402
 from arelab.workflows import load_workflow  # noqa: E402
 
 
@@ -114,11 +114,7 @@ def _wait_ready(workflow: str, timeout: int = 120) -> None:
 
 
 def _pid_alive(pid: int) -> bool:
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    return True
+    return pid_alive(pid)
 
 
 def start_router(workflow: str, foreground: bool) -> int:

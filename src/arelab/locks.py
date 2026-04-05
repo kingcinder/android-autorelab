@@ -6,6 +6,8 @@ import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
+import psutil
+
 from arelab.util import utc_now
 
 
@@ -81,7 +83,7 @@ def clear_workflow_lock(expected_workflow: str | None = None) -> None:
 def acquire_workflow_lock(workflow: str, owner: str) -> bool:
     path = _workflow_state_path(workflow)
     active = read_active_workflow(workflow)
-    if active and active.get("workflow") == workflow and _pid_alive(int(active.get("pid", 0))):
+    if active and active.get("workflow") == workflow and pid_alive(int(active.get("pid", 0))):
         return False
     payload = {
         "workflow": workflow,
@@ -104,11 +106,11 @@ def workflow_lock(workflow: str, owner: str):
             clear_workflow_lock(workflow)
 
 
-def _pid_alive(pid: int) -> bool:
+def pid_alive(pid: int) -> bool:
     if pid <= 0:
         return False
     try:
-        os.kill(pid, 0)
-    except OSError:
+        proc = psutil.Process(pid)
+        return proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE
+    except psutil.Error:
         return False
-    return True

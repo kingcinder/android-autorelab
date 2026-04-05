@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 from urllib.error import HTTPError
 
+import psutil
+
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
@@ -121,10 +123,10 @@ def _pid_alive(pid: int | None) -> bool:
     if not pid or pid <= 0:
         return False
     try:
-        os.kill(pid, 0)
-    except OSError:
+        proc = psutil.Process(pid)
+        return proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE
+    except psutil.Error:
         return False
-    return True
 
 
 def _lock_state(workflow: str) -> dict[str, object]:
@@ -157,21 +159,24 @@ def _assert_router_process(workflow: str) -> tuple[int, str]:
     pid = _launcher_pid(workflow)
     if not _pid_alive(pid):
         raise RuntimeError(f"missing live launcher pid for {workflow}")
-    cmdline = Path(f"/proc/{pid}/cmdline").read_text(encoding="utf-8").replace("\x00", " ").strip()
+    try:
+        cmdline = " ".join(psutil.Process(pid).cmdline())
+    except psutil.Error as exc:
+        raise RuntimeError(f"unable to inspect launcher pid {pid} for {workflow}") from exc
     if "run_router.py" not in cmdline or workflow not in cmdline:
         raise RuntimeError(f"launcher pid {pid} is not the expected {workflow} router wrapper: {cmdline}")
     return pid, cmdline
 
 
 def _process_rows() -> dict[int, tuple[int, int]]:
-    rows = subprocess.check_output(["ps", "-eo", "pid=,ppid=,rss="], text=True).splitlines()
     result: dict[int, tuple[int, int]] = {}
-    for row in rows:
-        parts = row.split()
-        if len(parts) != 3:
+    for proc in psutil.process_iter(["pid", "ppid", "memory_info"]):
+        try:
+            memory_info = proc.info.get("memory_info")
+            rss = int(memory_info.rss / 1024) if memory_info else 0
+            result[int(proc.info["pid"])] = (int(proc.info["ppid"]), rss)
+        except (psutil.Error, KeyError, TypeError, ValueError):
             continue
-        pid, ppid, rss = (int(parts[0]), int(parts[1]), int(parts[2]))
-        result[pid] = (ppid, rss)
     return result
 
 

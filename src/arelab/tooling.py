@@ -27,12 +27,12 @@ def detect_tools(settings: Settings) -> dict[str, str | None]:
         "unpack_bootimg": overrides.get("unpack_bootimg") or command_path("unpack_bootimg.py") or str(repo / "scripts" / "unpack_bootimg.py"),
         "avbtool": overrides.get("avbtool") or command_path("avbtool") or str(repo / "scripts" / "avbtool.py"),
         "analyzeHeadless": overrides.get("analyzeHeadless") or analyze_headless,
-        "file": command_path("file"),
-        "strings": command_path("strings"),
-        "nm": command_path("nm"),
-        "objdump": command_path("objdump"),
+        "file": overrides.get("file") or command_path("file"),
+        "strings": overrides.get("strings") or command_path("strings"),
+        "nm": overrides.get("nm") or command_path("nm"),
+        "objdump": overrides.get("objdump") or command_path("objdump"),
         "readelf": command_path("readelf"),
-        "gcc": command_path("gcc"),
-        "aarch64_gcc": command_path("aarch64-linux-gnu-gcc"),
+        "gcc": overrides.get("gcc") or command_path("gcc"),
+        "aarch64_gcc": overrides.get("aarch64_gcc") or command_path("aarch64-linux-gnu-gcc"),
     }
     return tools

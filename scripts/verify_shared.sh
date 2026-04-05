@@ -7,6 +7,7 @@ source "$ROOT_DIR/scripts/venv_paths.sh"
 PYTHON_BIN="$VENV_PYTHON"
 ARELAB_BIN="$VENV_ARELAB"
 VERIFY_WORKFLOW="${ARELAB_VERIFY_WORKFLOW:-default}"
+export PATH="$VENV_BIN_DIR:$PATH"
 
 pass() { printf '[PASS] %s\n' "$*"; }
 info() { printf '[INFO] %s\n' "$*"; }
@@ -63,8 +64,9 @@ if ! managed_backend; then
 fi
 
 info "Tool verification"
-need_cmd binwalk
-binwalk --help >/dev/null
+BINWALK_PATH="$(ROOT_DIR_ENV="$ROOT_DIR" VERIFY_WORKFLOW_ENV="$VERIFY_WORKFLOW" "$PYTHON_BIN" -c 'import os; from pathlib import Path; from arelab.config import Settings; from arelab.tooling import detect_tools; root = Path(os.environ["ROOT_DIR_ENV"]); workflow = os.environ["VERIFY_WORKFLOW_ENV"]; print(detect_tools(Settings.load(root, workflow=workflow)).get("binwalk") or "")')"
+[ -n "$BINWALK_PATH" ] || { echo "[FAIL] binwalk missing from tool detection" >&2; exit 1; }
+"$BINWALK_PATH" --help >/dev/null
 pass "binwalk --help"
 
 "$PYTHON_BIN" -c "import angr; print('angr ok')" >/dev/null
@@ -134,5 +136,5 @@ grep -q "SWAP-" "$REPORT_PATH"
 pass "shared proof run generated SWAP report"
 
 info "Running unit tests"
-"$VENV_PYTEST" -q
+"$PYTHON_BIN" -m pytest -q
 pass "unit tests"

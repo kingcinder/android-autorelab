@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from arelab.config import Settings
-from arelab.locks import read_active_workflow, workflow_lock
+from arelab.locks import pid_alive, read_active_workflow, workflow_lock
 
 
 class RouterClient:
@@ -185,16 +185,6 @@ class RouterClient:
         )
 
 
-def _pid_alive(pid: int) -> bool:
-    if pid <= 0:
-        return False
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    return True
-
-
 def build_router_command(settings: Settings, llama_bin: Path) -> list[str]:
     router = settings.workflow_config.get("router", {})
     models_dir = router.get("models_dir") or str(settings.repo_root / "models")
@@ -234,13 +224,23 @@ def build_router_command(settings: Settings, llama_bin: Path) -> list[str]:
 
 def run_router_foreground(repo_root: Path, workflow: str, llama_bin: Path) -> int:
     settings = Settings.load(repo_root, workflow=workflow)
+    exclusive_with = settings.workflow_config.get("exclusive_with")
+    if exclusive_with:
+        active_other = read_active_workflow(str(exclusive_with)) or {}
+        other_pid = int(active_other.get("pid", 0) or 0)
+        if (
+            active_other.get("workflow") == exclusive_with
+            and other_pid != os.getpid()
+            and pid_alive(other_pid)
+        ):
+            raise RuntimeError(f"{workflow} router cannot start while {exclusive_with} is active (pid={other_pid})")
     active = read_active_workflow(workflow) or {}
     active_pid = int(active.get("pid", 0) or 0)
     if (
         active.get("workflow") == workflow
         and active.get("owner") == "router"
         and active_pid != os.getpid()
-        and _pid_alive(active_pid)
+        and pid_alive(active_pid)
     ):
         raise RuntimeError(f"{workflow} router already active (pid={active_pid})")
     command = build_router_command(settings, llama_bin)

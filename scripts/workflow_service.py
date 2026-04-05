@@ -17,7 +17,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from arelab.config import Settings
-from arelab.locks import clear_workflow_lock, workflow_lock
+from arelab.locks import clear_workflow_lock, pid_alive, read_active_workflow, workflow_lock
 from arelab.model_gateway import ModelGateway
 from arelab.router import RouterClient
 
@@ -73,6 +73,12 @@ def run_service(repo_root: Path, workflow: str) -> int:
     settings = Settings.load(repo_root, workflow=workflow)
     planner = settings.model_pins.get("planner")
     preload = workflow == "legion" and planner
+    exclusive_with = settings.workflow_config.get("exclusive_with")
+    if exclusive_with:
+        active_other = read_active_workflow(str(exclusive_with)) or {}
+        other_pid = int(active_other.get("pid", 0) or 0)
+        if active_other.get("workflow") == exclusive_with and pid_alive(other_pid):
+            raise RuntimeError(f"{workflow} service cannot start while {exclusive_with} is active (pid={other_pid})")
 
     with workflow_lock(workflow, "service"):
         proc = subprocess.Popen(router_command(settings))

@@ -168,7 +168,7 @@ def session_anchor_path(repo_root: Path, session: IntakeSessionContext) -> Path:
         return Path(project_path)
     if session.references:
         return Path(session.references[0].resolved_path)
-    return repo_root / f"intake-{session.session_id}"
+    return _session_path(repo_root, session.session_id)
 
 
 class IntakeSessionStore:

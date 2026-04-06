@@ -11,7 +11,14 @@ class ArtifactStore:
         self.runs_root = runs_root
         self.runs_root.mkdir(parents=True, exist_ok=True)
 
-    def create_run(self, input_path: Path, profile: str, workflow: str) -> tuple[str, Path]:
+    def create_run(
+        self,
+        input_path: Path,
+        profile: str,
+        workflow: str,
+        *,
+        model_overrides: dict[str, str] | None = None,
+    ) -> tuple[str, Path]:
         run_id = timestamp_slug()
         run_dir = self.runs_root / run_id
         for name in ("logs", "artifacts", "reports", "prompts", "checkpoints", "work", "basement"):
@@ -27,6 +34,7 @@ class ArtifactStore:
             profile=profile,
             stage="created",
             basement_path=str(run_dir / "basement"),
+            model_overrides=model_overrides or {},
         )
         self.write_metadata(run_dir, metadata)
         return run_id, run_dir

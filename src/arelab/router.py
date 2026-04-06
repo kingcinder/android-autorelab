@@ -5,6 +5,8 @@ import json
 import os
 import signal
 import subprocess
+import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -12,7 +14,61 @@ from pathlib import Path
 from typing import Any
 
 from arelab.config import Settings
-from arelab.locks import pid_alive, read_active_workflow, workflow_lock
+from arelab.locks import pid_alive, read_active_workflow, state_path, workflow_lock
+
+
+_ROUTER_START_LOCKS: dict[str, threading.Lock] = {}
+
+
+def _router_start_lock(workflow: str) -> threading.Lock:
+    lock = _ROUTER_START_LOCKS.get(workflow)
+    if lock is None:
+        lock = threading.Lock()
+        _ROUTER_START_LOCKS[workflow] = lock
+    return lock
+
+
+def router_pid_path(workflow: str) -> Path:
+    runtime = state_path(workflow).parent
+    runtime.mkdir(parents=True, exist_ok=True)
+    return runtime / f"{workflow}-router.pid"
+
+
+def router_log_path(workflow: str) -> Path:
+    runtime = state_path(workflow).parent
+    runtime.mkdir(parents=True, exist_ok=True)
+    return runtime / f"{workflow}-router.log"
+
+
+def _read_router_pid(workflow: str) -> int | None:
+    path = router_pid_path(workflow)
+    if not path.exists():
+        return None
+    try:
+        return int(path.read_text(encoding="utf-8").strip())
+    except ValueError:
+        path.unlink(missing_ok=True)
+        return None
+
+
+def _router_log_excerpt(workflow: str, lines: int = 20) -> str:
+    path = router_log_path(workflow)
+    if not path.exists():
+        return ""
+    content = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    return "\n".join(content[-lines:])
+
+
+def _router_launch_command(settings: Settings) -> list[str]:
+    script = settings.repo_root / "scripts" / "run_router.py"
+    return [
+        sys.executable,
+        str(script),
+        "--repo-root",
+        str(settings.repo_root),
+        "--workflow",
+        settings.workflow,
+    ]
 
 
 class RouterClient:
@@ -183,6 +239,70 @@ class RouterClient:
         raise TimeoutError(
             f"model {model} did not reach any of {sorted(expected)} within {timeout}s; last_state={last_state}"
         )
+
+
+def ensure_router_ready(settings: Settings, *, timeout: int = 30) -> None:
+    workflow = settings.workflow
+    if workflow not in {"agency", "legion"}:
+        return
+    client = RouterClient(settings)
+    try:
+        client.wait_until_ready(timeout=2)
+        return
+    except Exception:  # noqa: BLE001
+        pass
+    with _router_start_lock(workflow):
+        try:
+            client.wait_until_ready(timeout=2)
+            return
+        except Exception:  # noqa: BLE001
+            pass
+        pid = _read_router_pid(workflow)
+        if pid and pid_alive(pid):
+            try:
+                client.wait_until_ready(timeout=timeout)
+                return
+            except Exception as exc:  # noqa: BLE001
+                excerpt = _router_log_excerpt(workflow)
+                raise RuntimeError(
+                    f"{workflow} router process {pid} is running but {client.base_url} never became ready."
+                    + (f"\nRecent router log output:\n{excerpt}" if excerpt else "")
+                ) from exc
+        router_pid_path(workflow).unlink(missing_ok=True)
+        log_path = router_log_path(workflow)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8", errors="replace") as handle:
+            handle.write(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] starting {workflow} router\n")
+            handle.flush()
+            process = subprocess.Popen(
+                _router_launch_command(settings),
+                cwd=str(settings.repo_root),
+                stdout=handle,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+            )
+        router_pid_path(workflow).write_text(f"{process.pid}\n", encoding="utf-8")
+        deadline = time.time() + timeout
+        last_error: Exception | None = None
+        while time.time() < deadline:
+            try:
+                client.wait_until_ready(timeout=2)
+                return
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+                if process.poll() is not None:
+                    router_pid_path(workflow).unlink(missing_ok=True)
+                    excerpt = _router_log_excerpt(workflow)
+                    raise RuntimeError(
+                        f"{workflow} router exited before {client.base_url} became ready (pid={process.pid}, exit_code={process.returncode})."
+                        + (f"\nRecent router log output:\n{excerpt}" if excerpt else "")
+                    ) from exc
+        excerpt = _router_log_excerpt(workflow)
+        raise RuntimeError(
+            f"{workflow} router could not be started for {client.base_url} (pid={process.pid})."
+            + (f"\nRecent router log output:\n{excerpt}" if excerpt else "")
+        ) from last_error
 
 
 def build_router_command(settings: Settings, llama_bin: Path) -> list[str]:

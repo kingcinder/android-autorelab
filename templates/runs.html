@@ -1,50 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow">Industrial Evidence Board</p>
-    <h2>Runs, reports, artifacts, and operator traceability in one place.</h2>
-    <p>The suite stays local, stages analysis automatically, and keeps every prompt and tool invocation auditable. Startup intake now begins at <code>/</code>; the ledger remains intact here.</p>
-    <div class="hero-ribbon">
-      <span>audit-logged</span>
-      <span>checkpointed</span>
-      <span>overnight-capable</span>
-    </div>
+<section class="page-intro">
+  <div>
+    <p class="eyebrow">Runs</p>
+    <h2>See what is in progress, what is complete, and where the outputs live.</h2>
+    <p>This page is the ledger for completed and in-flight work. If you are starting fresh, go back to the guided intake.</p>
   </div>
-  <div class="hero-panel">
-    <div class="metric">
-      <span>Tracked runs</span>
-      <strong>{{ runs|length }}</strong>
-    </div>
-    <div class="metric">
-      <span>Output root</span>
-      <strong>runs/</strong>
-    </div>
-    <div class="metric">
-      <span>Mode</span>
-      <strong>{{ workflow }}</strong>
-    </div>
+  <div class="detail-links">
+    <a href="/">Start a new run</a>
   </div>
 </section>
 
 <section class="panel">
   <div class="panel-head">
-    <h3>Run Ledger</h3>
-    <p>Newest first.</p>
+    <div>
+      <p class="eyebrow">Run overview</p>
+      <h3>Run Ledger</h3>
+    </div>
+    <p class="panel-copy">Newest first. Every card tells you what the run is, where it is in the process, and where to click next.</p>
+  </div>
+  <div class="stat-grid ledger-stats">
+    <div class="stat-card"><span>Total</span><strong>{{ summary.total }}</strong></div>
+    <div class="stat-card"><span>Active</span><strong>{{ summary.active }}</strong></div>
+    <div class="stat-card"><span>Completed</span><strong>{{ summary.completed }}</strong></div>
+    <div class="stat-card"><span>Failed</span><strong>{{ summary.failed }}</strong></div>
   </div>
   <div class="run-grid">
     {% for run in runs %}
-    <a class="run-card" href="/runs/{{ run.workflow }}/{{ run.run_id }}">
+    <a class="run-card" href="{{ run.detail_path }}">
       <div class="run-card-topline">
-        <span class="run-status run-status-{{ run.status }}">{{ run.status }}</span>
-        <span class="run-stage">{{ run.stage }}</span>
+        <span class="run-status run-status-{{ run.status }}">{{ run.status_label }}</span>
+        <span class="run-stage">{{ run.stage_label }}</span>
       </div>
       <h4>{{ run.run_id }}</h4>
       <p class="run-path">{{ run.input_path }}</p>
+      <p class="run-help">{{ run.stage_help }}</p>
       <dl>
         <div>
           <dt>Workflow</dt>
-          <dd>{{ run.workflow }}</dd>
+          <dd>{{ run.workflow_label }}</dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>{{ run.source_label }}</dd>
         </div>
         <div>
           <dt>Profile</dt>
@@ -54,12 +52,16 @@
           <dt>Updated</dt>
           <dd>{{ run.updated_at }}</dd>
         </div>
+        <div>
+          <dt>Outputs</dt>
+          <dd>{{ run.output_label }}</dd>
+        </div>
       </dl>
     </a>
     {% else %}
     <div class="empty-state">
       <h4>No runs yet</h4>
-      <p>Use the startup intake flow at <code>/</code>, or run <code>arelab demo</code> / <code>arelab run --input ...</code> to generate the first dossier.</p>
+      <p>Start at the guided intake screen, or use <code>arelab demo</code> or <code>arelab run --input ...</code> from the command line to create the first dossier.</p>
       <div class="empty-command">
         <code>arelab demo --profile overnight</code>
       </div>

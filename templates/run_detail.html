@@ -1,36 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="panel detail-header">
+<section class="page-intro">
   <div>
-    <p class="eyebrow">Run {{ run.run_id }}</p>
-    <h2>{{ run.status|upper }} · {{ run.stage }}</h2>
-    <p>{{ run.input_path }}</p>
-    <div class="hero-ribbon detail-ribbon">
-      <span>{{ run.workflow }}</span>
-      <span>{{ run.profile }}</span>
-      <span>{{ run.status }}</span>
-      <span>{{ run.stage }}</span>
-    </div>
+    <p class="eyebrow">Run overview</p>
+    <h2>{{ run.status_label }}: {{ run.stage_label }}</h2>
+    <p>{{ stage_hint }}</p>
   </div>
   <div class="detail-links">
-    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/report">Raw report</a>
-    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/artifacts">Manifest</a>
+    <a href="/runs">Back to runs</a>
+    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/report">Open raw report</a>
+    <a href="/runs/{{ run.workflow }}/{{ run.run_id }}/artifacts">Open manifest</a>
   </div>
+</section>
+
+<section class="hero-layout">
+  <article class="panel hero-panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Run summary</p>
+        <h3>{{ run.run_id }}</h3>
+      </div>
+    </div>
+    <div class="hero-ribbon detail-ribbon">
+      <span>{{ run.workflow_label }}</span>
+      <span>{{ run.profile }}</span>
+      <span>{{ run.source_label }}</span>
+      <span>{{ run.status_label }}</span>
+    </div>
+    <p class="run-path run-path-wide">{{ run.input_path }}</p>
+  </article>
+
+  <aside class="panel panel-stack">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Recommended next steps</p>
+        <h3>What to do from here</h3>
+      </div>
+    </div>
+    <ul class="helper-list compact">
+      {% for item in next_actions %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <span>Status</span>
+        <strong id="live-status">{{ run.status_label }}</strong>
+      </div>
+      <div class="stat-card">
+        <span>Stage</span>
+        <strong id="live-stage">{{ run.stage_label }}</strong>
+      </div>
+    </div>
+  </aside>
 </section>
 
 <section class="detail-grid detail-grid-wide">
   <article class="panel">
     <div class="panel-head">
-      <h3>Run Metadata</h3>
+      <div>
+        <p class="eyebrow">Core details</p>
+        <h3>Run metadata</h3>
+      </div>
     </div>
     <dl class="meta-list">
       <div><dt>Created</dt><dd>{{ run.created_at }}</dd></div>
       <div><dt>Updated</dt><dd>{{ run.updated_at }}</dd></div>
-      <div><dt>Workflow</dt><dd>{{ run.workflow }}</dd></div>
+      <div><dt>Workflow</dt><dd>{{ run.workflow_label }}</dd></div>
       <div><dt>Profile</dt><dd>{{ run.profile }}</dd></div>
-      <div><dt>Source type</dt><dd>{{ run.source_type or "unknown" }}</dd></div>
+      <div><dt>Source type</dt><dd>{{ run.source_label }}</dd></div>
       <div><dt>Intake session</dt><dd>{{ run.intake_session_id or "not recorded" }}</dd></div>
       <div><dt>Output</dt><dd>{{ run.output_root }}</dd></div>
+      <div><dt>Model overrides</dt><dd>{{ run.model_overrides|length }}</dd></div>
       <div><dt>Basement</dt><dd>{{ run.basement_path or "pending" }}</dd></div>
       <div><dt>Report</dt><dd>{{ run.report_path or "pending" }}</dd></div>
     </dl>
@@ -38,22 +79,64 @@
 
   <article class="panel">
     <div class="panel-head">
-      <h3>Basement Summary</h3>
-      <p>Shared subordinate outputs remain scoped to this workflow run.</p>
+      <div>
+        <p class="eyebrow">Live activity</p>
+        <h3>Run progress</h3>
+      </div>
+      <p class="panel-copy">This view refreshes automatically while the run is active.</p>
+    </div>
+    <div class="summary-grid">
+      <div>
+        <h4>Current tool output</h4>
+        <p class="mini-label" id="live-log-label">{{ live_state.latest_log.label or "No tool output yet" }}</p>
+        <pre class="terminal-output" id="live-stdout">{{ live_state.latest_log.stdout or "Waiting for tool output..." }}</pre>
+      </div>
+      <div>
+        <h4>Recent checkpoints</h4>
+        <ul class="helper-list compact" id="live-checkpoints">
+          {% for item in live_state.checkpoints %}
+          <li>{{ item }}</li>
+          {% else %}
+          <li>No checkpoints recorded yet.</li>
+          {% endfor %}
+        </ul>
+        <h4>Errors</h4>
+        <pre class="terminal-output terminal-output-error" id="live-stderr">{{ live_state.latest_log.stderr or "No stderr output." }}</pre>
+      </div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Workflow-scoped support files</p>
+        <h3>Basement summary</h3>
+      </div>
+      <p class="panel-copy">Shared support routines stay inside this run. Nothing here is mixed across workflows.</p>
     </div>
     {% if basement %}
-    <ul class="helper-list compact">
-      <li><strong>Root</strong>: {{ basement.root }}</li>
-      {% if basement.session %}
-      <li><strong>Session source</strong>: {{ basement.session.source_type }}</li>
-      <li><strong>Canonical session key</strong>: {{ basement.session.canonical_keys.session_key }}</li>
-      {% endif %}
-      {% if basement.index %}
-      {% for key, value in basement.index.items() %}
-      <li><strong>{{ key }}</strong>: {{ value }}</li>
-      {% endfor %}
-      {% endif %}
-    </ul>
+    <div class="summary-grid">
+      <div>
+        <h4>Session context</h4>
+        <ul class="helper-list compact">
+          <li><strong>Root</strong>: {{ basement.root }}</li>
+          {% if basement.session %}
+          <li><strong>Source</strong>: {{ basement.session.source_type }}</li>
+          <li><strong>Session key</strong>: {{ basement.session.canonical_keys.session_key }}</li>
+          {% endif %}
+        </ul>
+      </div>
+        <div>
+          <h4>Recorded outputs</h4>
+          <ul class="helper-list compact">
+          {% for item in basement.output_items %}
+          <li><strong>{{ item.label }}</strong>: {{ item.path }}</li>
+          {% else %}
+          <li>No Basement index entries were recorded yet.</li>
+          {% endfor %}
+          </ul>
+      </div>
+    </div>
     {% else %}
     <p>No Basement outputs recorded for this run yet.</p>
     {% endif %}
@@ -61,10 +144,155 @@
 
   <article class="panel report-panel">
     <div class="panel-head">
-      <h3>Report Preview</h3>
-      <p>Markdown snapshot from the completed run bundle.</p>
+      <div>
+        <p class="eyebrow">Preview</p>
+        <h3>Report preview</h3>
+      </div>
+      <p class="panel-copy">A quick view of the markdown report for this run.</p>
     </div>
-    <pre>{{ report_md or "Report pending for this run." }}</pre>
+    <pre id="live-report">{{ report_md or live_state.report_excerpt or "Report pending for this run." }}</pre>
   </article>
 </section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Operator console</p>
+      <h3>Ask the models questions or leave guidance for later stages</h3>
+    </div>
+    <p class="panel-copy">Questions return an immediate model response. Guidance is stored with the run and included in later model-stage context.</p>
+  </div>
+  <div class="detail-grid">
+    <article class="panel panel-subtle">
+      <form id="console-form" class="intake-form">
+        <label class="form-field">
+          <span>Model</span>
+          <select id="console-model" name="model">
+            <option value="">Use the run's configured planner model</option>
+            {% for role, model in run.model_overrides.items() %}
+            <option value="{{ model }}">{{ role }} override: {{ model }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Question or suggestion</span>
+          <textarea id="console-prompt" rows="6" placeholder="Ask for clarification, request a comparison, or add a note for later model stages."></textarea>
+        </label>
+        <label class="checkbox-line">
+          <input id="console-guidance" type="checkbox" />
+          <span>Also save this as run guidance for later model stages</span>
+        </label>
+        <div class="form-actions">
+          <button type="submit">Send to model</button>
+        </div>
+      </form>
+    </article>
+    <article class="panel panel-subtle">
+      <h4>Console transcript</h4>
+      <div class="console-history" id="console-history">
+        {% for item in live_state.console_history %}
+        <article class="console-entry">
+          <p><strong>{{ item.model }}</strong> · {{ item.recorded_at }}</p>
+          <p>{{ item.prompt }}</p>
+          <pre class="terminal-output">{{ item.response }}</pre>
+        </article>
+        {% else %}
+        <p class="empty-note">No console exchanges yet.</p>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+</section>
+
+<script>
+(() => {
+  const runPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/live";
+  const consolePath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/console";
+  const modelsPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/models";
+  const statusEl = document.getElementById("live-status");
+  const stageEl = document.getElementById("live-stage");
+  const checkpointsEl = document.getElementById("live-checkpoints");
+  const stdoutEl = document.getElementById("live-stdout");
+  const stderrEl = document.getElementById("live-stderr");
+  const reportEl = document.getElementById("live-report");
+  const logLabelEl = document.getElementById("live-log-label");
+  const historyEl = document.getElementById("console-history");
+  const form = document.getElementById("console-form");
+  const consoleModelEl = document.getElementById("console-model");
+
+  function humanize(value) {
+    return (value || "unknown").replace(/[_-]+/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
+  }
+
+  function renderHistory(items) {
+    if (!items.length) {
+      historyEl.innerHTML = '<p class="empty-note">No console exchanges yet.</p>';
+      return;
+    }
+    historyEl.innerHTML = items.map((item) => `
+      <article class="console-entry">
+        <p><strong>${item.model}</strong> · ${item.recorded_at}</p>
+        <p>${item.prompt}</p>
+        <pre class="terminal-output">${item.response}</pre>
+      </article>
+    `).join("");
+  }
+
+  async function refreshLive() {
+    const response = await fetch(runPath, { headers: { "Accept": "application/json" } });
+    if (!response.ok) return;
+    const payload = await response.json();
+    statusEl.textContent = humanize(payload.run.status_label || payload.run.status);
+    stageEl.textContent = humanize(payload.run.stage_label || payload.run.stage);
+    logLabelEl.textContent = payload.latest_log.label || "No tool output yet";
+    stdoutEl.textContent = payload.latest_log.stdout || "Waiting for tool output...";
+    stderrEl.textContent = payload.latest_log.stderr || "No stderr output.";
+    reportEl.textContent = payload.report_excerpt || reportEl.textContent;
+    checkpointsEl.innerHTML = (payload.checkpoints.length ? payload.checkpoints : ["No checkpoints recorded yet."])
+      .map((item) => `<li>${item}</li>`).join("");
+    renderHistory(payload.console_history || []);
+  }
+
+  async function refreshModels() {
+    const response = await fetch(modelsPath, { headers: { "Accept": "application/json" } });
+    if (!response.ok) return;
+    const payload = await response.json();
+    const currentValue = consoleModelEl.value;
+    const modelNames = [...new Set([...(payload.configured_models || []), ...(payload.available_models || [])])];
+    const options = ['<option value="">Use the run\'s configured planner model</option>'];
+    for (const item of modelNames) {
+      options.push(`<option value="${item}">${item}</option>`);
+    }
+    consoleModelEl.innerHTML = options.join("");
+    if (currentValue) {
+      consoleModelEl.value = currentValue;
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const prompt = document.getElementById("console-prompt").value.trim();
+    if (!prompt) return;
+    const model = document.getElementById("console-model").value;
+    const saveGuidance = document.getElementById("console-guidance").checked;
+    const response = await fetch(consolePath, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, model, save_guidance: saveGuidance }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({ message: "Model console request failed." }));
+      historyEl.innerHTML = `<p class="empty-note">${payload.message || payload.error || "Model console request failed."}</p>` + historyEl.innerHTML;
+      return;
+    }
+    document.getElementById("console-prompt").value = "";
+    document.getElementById("console-guidance").checked = false;
+    await refreshLive();
+  });
+
+  refreshModels();
+  refreshLive();
+  setInterval(refreshLive, 2500);
+})();
+</script>
 {% endblock %}

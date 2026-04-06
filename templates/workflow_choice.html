@@ -1,31 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="panel detail-header">
+<section class="page-intro">
   <div>
-    <p class="eyebrow">Neutral Intake Context</p>
-    <h2>Workflow binding happens only after intake is established.</h2>
-    <p>Session {{ session.session_id }} records provided material, inferred context, remaining unknowns, and provenance notes before any run is created.</p>
-    <div class="hero-ribbon detail-ribbon">
-      <span>{{ session.source_type }}</span>
-      <span>{{ session.canonical_keys.session_key }}</span>
-      <span>workflow-neutral</span>
-    </div>
+    <p class="eyebrow">Step 2 of 3</p>
+    <h2>Review the intake, then choose how you want to work.</h2>
+    <p>The session is still workflow-neutral at this point. Choosing a workflow creates the run and keeps all outputs scoped to that workflow only.</p>
   </div>
-  <div class="detail-links">
-    <a href="/">Back to startup</a>
-    <a href="/runs">Run ledger</a>
-  </div>
+  <ol class="stepper" aria-label="Workflow steps">
+    <li>Choose input</li>
+    <li class="is-active">Review intake</li>
+    <li>Choose workflow</li>
+  </ol>
 </section>
 
-<section class="detail-grid choice-grid">
+<section class="detail-grid detail-grid-wide">
   <article class="panel">
     <div class="panel-head">
-      <h3>Session Context</h3>
-      <p>Canonicalized intake state.</p>
+      <div>
+        <p class="eyebrow">Session overview</p>
+        <h3>What the app captured</h3>
+      </div>
+      <p class="panel-copy">{{ session.session_id }}</p>
     </div>
     <div class="summary-grid">
       <div>
-        <h4>Provided</h4>
+        <h4>You provided</h4>
         <ul class="helper-list compact">
           {% for key, value in session.provided.items() %}
           <li><strong>{{ key }}</strong>: {{ value }}</li>
@@ -33,7 +32,7 @@
         </ul>
       </div>
       <div>
-        <h4>Inferred</h4>
+        <h4>The app inferred</h4>
         <ul class="helper-list compact">
           {% for key, value in session.inferred.items() %}
           <li><strong>{{ key }}</strong>: {{ value }}</li>
@@ -41,7 +40,7 @@
         </ul>
       </div>
       <div>
-        <h4>Unknown</h4>
+        <h4>Still unknown</h4>
         <ul class="helper-list compact">
           {% for item in session.unknown %}
           <li>{{ item }}</li>
@@ -51,7 +50,7 @@
         </ul>
       </div>
       <div>
-        <h4>Provenance</h4>
+        <h4>Provenance notes</h4>
         <ul class="helper-list compact">
           {% for item in session.provenance_notes %}
           <li>{{ item }}</li>
@@ -65,19 +64,121 @@
 
   <article class="panel">
     <div class="panel-head">
-      <h3>Select Workflow</h3>
-      <p>The Basement remains a subordinate routine inside the chosen workflow scope.</p>
+      <div>
+        <p class="eyebrow">What happens next</p>
+        <h3>Choose the workflow style that fits the job</h3>
+      </div>
     </div>
-    <div class="choice-cards">
+    <ul class="helper-list compact">
+      {% for item in next_steps %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    <div class="hero-ribbon detail-ribbon">
+      <span>{{ session.source_type }}</span>
+      <span>{{ session.canonical_keys.session_key }}</span>
+      <span>workflow-neutral so far</span>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Step 3 of 3</p>
+        <h3>Pick your workflow</h3>
+      </div>
+      <div class="detail-links">
+        <a href="/">Back to start</a>
+        <a href="/runs">See existing runs</a>
+      </div>
+    </div>
+    <div class="choice-cards choice-cards-wide">
       {% for option in workflow_options %}
-      <a class="choice-card" href="/start?session_id={{ session.session_id }}&workflow_name={{ option.name }}">
+      <article class="choice-card">
         <p class="eyebrow">Workflow</p>
         <h4>{{ option.label }}</h4>
         <p>{{ option.description }}</p>
-        <span>Outputs stay under runs/{{ option.name }}/...</span>
-      </a>
+        <ul class="helper-list compact">
+          <li><strong>Best for</strong>: {{ option.best_for }}</li>
+          <li><strong>Outputs</strong>: {{ option.outputs }}</li>
+          <li><strong>Basement</strong>: shared support stays inside this workflow only</li>
+        </ul>
+        <form action="/start" method="get" class="choice-form">
+          <input type="hidden" name="session_id" value="{{ session.session_id }}" />
+          <input type="hidden" name="workflow_name" value="{{ option.name }}" />
+          <label class="form-field">
+            <span>Run profile</span>
+            <select name="profile">
+              {% for profile_name in option.selector.profiles %}
+              <option value="{{ profile_name }}" {% if profile_name == option.selector.default_profile %}selected{% endif %}>{{ profile_name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <details class="model-picker">
+            <summary>Choose models for this run</summary>
+            <p class="model-picker-copy">Leave a role on its default if you do not want to override it. Additional models load in the background without blocking this page.</p>
+            <p class="mini-label" data-model-status="{{ option.name }}">Checking model availability for {{ option.label }}...</p>
+            <div class="model-grid">
+              {% for role in option.selector.roles %}
+              <label class="form-field">
+                <span>{{ role.name }}</span>
+                <select name="{{ role.name }}_model" data-model-select data-workflow="{{ option.name }}">
+                  <option value="">Use default ({{ role.selected }})</option>
+                  {% for model_name in role.models %}
+                  <option value="{{ model_name }}">{{ model_name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              {% endfor %}
+            </div>
+          </details>
+          <button type="submit">Start with {{ option.label }}</button>
+        </form>
+      </article>
       {% endfor %}
     </div>
   </article>
 </section>
+<script>
+(() => {
+  async function loadWorkflowModels(workflowName) {
+    const statusEl = document.querySelector(`[data-model-status="${workflowName}"]`);
+    const selects = document.querySelectorAll(`[data-model-select][data-workflow="${workflowName}"]`);
+    if (!selects.length) return;
+    try {
+      const response = await fetch(`/api/workflows/${workflowName}/models`, { headers: { "Accept": "application/json" } });
+      const payload = await response.json();
+      const modelNames = [...new Set([...(payload.configured_models || []), ...(payload.available_models || [])])];
+      for (const select of selects) {
+        const currentValue = select.value;
+        const defaultOption = select.querySelector('option[value=""]');
+        select.innerHTML = "";
+        if (defaultOption) {
+          select.appendChild(defaultOption);
+        }
+        for (const modelName of modelNames) {
+          const option = document.createElement("option");
+          option.value = modelName;
+          option.textContent = modelName;
+          select.appendChild(option);
+        }
+        if (currentValue) {
+          select.value = currentValue;
+        }
+      }
+      if (statusEl) {
+        statusEl.textContent = payload.message || "Model availability refreshed.";
+      }
+    } catch (error) {
+      if (statusEl) {
+        statusEl.textContent = "Model availability could not be refreshed right now.";
+      }
+    }
+  }
+
+  for (const workflowName of ["agency", "legion"]) {
+    loadWorkflowModels(workflowName);
+  }
+})();
+</script>
 {% endblock %}

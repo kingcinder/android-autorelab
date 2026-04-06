@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import threading
 from pathlib import Path
 
 from arelab.schemas import ToolExecution
@@ -17,6 +18,15 @@ class ToolRunner:
     def __init__(self, logs_dir: Path) -> None:
         self.logs_dir = logs_dir
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _pump_stream(stream, output_path: Path, sink: list[str]) -> None:
+        with output_path.open("w", encoding="utf-8", errors="replace") as handle:
+            for chunk in iter(stream.readline, ""):
+                handle.write(chunk)
+                handle.flush()
+                sink.append(chunk)
+        stream.close()
 
     def run(
         self,
@@ -33,17 +43,41 @@ class ToolRunner:
         stdout_path = self.logs_dir / f"{stamp}.stdout.log"
         stderr_path = self.logs_dir / f"{stamp}.stderr.log"
         log_path = self.logs_dir / f"{stamp}.json"
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             command,
             cwd=str(cwd) if cwd else None,
             env=env,
             text=True,
-            capture_output=True,
-            timeout=timeout,
-            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=1,
         )
-        stdout_path.write_text(proc.stdout, encoding="utf-8")
-        stderr_path.write_text(proc.stderr, encoding="utf-8")
+        if proc.stdout is None or proc.stderr is None:
+            raise RuntimeError("failed to capture subprocess output")
+        stdout_chunks: list[str] = []
+        stderr_chunks: list[str] = []
+        stdout_thread = threading.Thread(
+            target=self._pump_stream,
+            args=(proc.stdout, stdout_path, stdout_chunks),
+            daemon=True,
+        )
+        stderr_thread = threading.Thread(
+            target=self._pump_stream,
+            args=(proc.stderr, stderr_path, stderr_chunks),
+            daemon=True,
+        )
+        stdout_thread.start()
+        stderr_thread.start()
+        try:
+            exit_code = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            exit_code = proc.wait()
+            stderr_chunks.append(f"\n[arelab] command timed out after {timeout} seconds\n")
+            with stderr_path.open("a", encoding="utf-8", errors="replace") as handle:
+                handle.write(f"\n[arelab] command timed out after {timeout} seconds\n")
+        stdout_thread.join(timeout=5)
+        stderr_thread.join(timeout=5)
         finished_at = utc_now()
         execution = ToolExecution(
             label=label,
@@ -51,14 +85,14 @@ class ToolRunner:
             cwd=str(cwd or Path.cwd()),
             started_at=started_at,
             finished_at=finished_at,
-            exit_code=proc.returncode,
+            exit_code=exit_code,
             stdout_path=str(stdout_path),
             stderr_path=str(stderr_path),
             log_path=str(log_path),
         )
         json_dump(log_path, json.loads(execution.model_dump_json()))
-        if proc.returncode != 0 and not allow_failure:
+        if exit_code != 0 and not allow_failure:
             raise RuntimeError(
-                f"Command failed ({proc.returncode}): {' '.join(command)}; see {stderr_path}"
+                f"Command failed ({exit_code}): {' '.join(command)}; see {stderr_path}"
             )
         return execution

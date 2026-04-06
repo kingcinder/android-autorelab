@@ -15,7 +15,7 @@ from arelab.locks import workflow_lock
 from arelab.model_gateway import ModelGateway
 from arelab.report import write_report
 from arelab.runner import ToolRunner
-from arelab.schemas import RunMetadata, SwapCandidate
+from arelab.schemas import IntakeSessionContext, RunMetadata, SwapCandidate
 from arelab.store import ArtifactStore
 from arelab.tooling import detect_tools
 from arelab.util import json_dump
@@ -26,7 +26,19 @@ def _checkpoint(run_dir: Path, stage: str, payload: dict[str, object]) -> None:
     json_dump(run_dir / "checkpoints" / f"{stage}.json", payload)
 
 
-def run_pipeline(
+def _apply_model_overrides(settings: Settings, model_overrides: dict[str, str] | None) -> dict[str, str]:
+    resolved: dict[str, str] = {}
+    if not model_overrides:
+        return resolved
+    for role, model in model_overrides.items():
+        if not role or not model:
+            continue
+        settings.model_pins[role] = model
+        resolved[role] = model
+    return resolved
+
+
+def prepare_run(
     *,
     repo_root: Path,
     input_path: Path | None,
@@ -34,6 +46,7 @@ def run_pipeline(
     profile: str,
     workflow: str = "default",
     demo: bool = False,
+    model_overrides: dict[str, str] | None = None,
 ) -> tuple[str, Path]:
     settings = Settings.load(repo_root, workflow=workflow)
     workflow_spec = load_workflow(repo_root, workflow)
@@ -43,10 +56,41 @@ def run_pipeline(
         settings.runs_root = output_root
     store = ArtifactStore(settings.runs_root)
     initial_input = input_path or repo_root
-    run_id, run_dir = store.create_run(initial_input, profile, workflow)
+    run_id, run_dir = store.create_run(initial_input, profile, workflow, model_overrides=model_overrides)
     metadata = store.load_metadata(run_dir)
+    metadata.status = "running"
+    metadata.stage = "starting"
+    metadata.model_overrides = _apply_model_overrides(settings, model_overrides)
+    store.write_metadata(run_dir, metadata)
+    return run_id, run_dir
+
+
+def execute_prepared_run(
+    *,
+    repo_root: Path,
+    run_dir: Path,
+    input_path: Path | None,
+    profile: str,
+    workflow: str = "default",
+    demo: bool = False,
+    model_overrides: dict[str, str] | None = None,
+    intake_session: IntakeSessionContext | None = None,
+) -> tuple[str, Path]:
+    settings = Settings.load(repo_root, workflow=workflow)
+    workflow_spec = load_workflow(repo_root, workflow)
+    if profile == "auto":
+        profile = workflow_spec.pipeline.get("default_profile", "overnight")
+    if run_dir.parent != settings.runs_root:
+        settings.runs_root = run_dir.parent
+    store = ArtifactStore(settings.runs_root)
+    metadata = store.load_metadata(run_dir)
+    metadata.status = "running"
+    metadata.stage = "starting"
+    metadata.model_overrides = _apply_model_overrides(settings, model_overrides or metadata.model_overrides)
+    store.write_metadata(run_dir, metadata)
     runner = ToolRunner(run_dir / "logs")
     tools = detect_tools(settings)
+    run_id = run_dir.name
 
     try:
         with workflow_lock(workflow, "pipeline"):
@@ -61,10 +105,10 @@ def run_pipeline(
                     raise ValueError("input_path is required when demo=False")
                 actual_input = input_path
 
-            intake_session = infer_input_session(repo_root, actual_input, demo=demo)
-            prepare_basement(run_dir, workflow, intake_session)
-            metadata.intake_session_id = intake_session.session_id
-            metadata.source_type = intake_session.source_type
+            active_session = intake_session or infer_input_session(repo_root, actual_input, demo=demo)
+            prepare_basement(run_dir, workflow, active_session)
+            metadata.intake_session_id = active_session.session_id
+            metadata.source_type = active_session.source_type
             json_dump(run_dir / "artifacts" / "tool-detection.json", tools)
             _checkpoint(run_dir, "workflow", {"name": workflow_spec.name, "mode": workflow_spec.mode})
 
@@ -122,6 +166,36 @@ def run_pipeline(
         metadata.error = str(exc)
         store.write_metadata(run_dir, metadata)
         raise
+
+
+def run_pipeline(
+    *,
+    repo_root: Path,
+    input_path: Path | None,
+    output_root: Path | None,
+    profile: str,
+    workflow: str = "default",
+    demo: bool = False,
+    model_overrides: dict[str, str] | None = None,
+) -> tuple[str, Path]:
+    run_id, run_dir = prepare_run(
+        repo_root=repo_root,
+        input_path=input_path,
+        output_root=output_root,
+        profile=profile,
+        workflow=workflow,
+        demo=demo,
+        model_overrides=model_overrides,
+    )
+    return execute_prepared_run(
+        repo_root=repo_root,
+        run_dir=run_dir,
+        input_path=input_path,
+        profile=profile,
+        workflow=workflow,
+        demo=demo,
+        model_overrides=model_overrides,
+    )
 
 
 def _refine_shortlist(*, gateway: ModelGateway, analyses, heuristic_only: list[SwapCandidate], limit: int) -> int:

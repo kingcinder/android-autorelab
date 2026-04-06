@@ -7,18 +7,19 @@
     <link rel="stylesheet" href="/static/css/app.css" />
   </head>
   <body>
-    <div class="ambient ambient-a"></div>
-    <div class="ambient ambient-b"></div>
     <div class="page-shell">
-      <header class="masthead">
-        <div class="masthead-copy">
-          <p class="eyebrow">Android AutoRELab</p>
-          <h1>Autonomous Evidence Dossier</h1>
-          <p class="masthead-summary">Local-first reverse-engineering workflows with preserved tool trails, prompt traces, and fix-oriented SWAP reports.</p>
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">AR</div>
+          <div class="brand-copy">
+            <p class="eyebrow">Android AutoRELab</p>
+            <h1>Guided Android Evidence Workflows</h1>
+            <p>Start with what you have, review the captured context, then choose the workflow that fits the job.</p>
+          </div>
         </div>
-        <nav class="masthead-nav">
-          <a href="/">Startup</a>
-          <a href="/runs">Runs</a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="/" class="{% if nav_path == 'startup' %}is-active{% endif %}">Start</a>
+          <a href="/runs" class="{% if nav_path == 'runs' %}is-active{% endif %}">Runs</a>
         </nav>
       </header>
       <main>
@@ -26,8 +27,8 @@
       </main>
       <footer class="footer-mark">
         <span>Read-only by default</span>
-        <span>Evidence over conjecture</span>
-        <span>No exploit outputs</span>
+        <span>Workflow-scoped outputs</span>
+        <span>Evidence first</span>
       </footer>
     </div>
   </body>

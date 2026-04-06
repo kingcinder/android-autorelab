@@ -104,6 +104,7 @@ class RunMetadata(BaseModel):
     basement_path: str | None = None
     intake_session_id: str | None = None
     source_type: str | None = None
+    model_overrides: dict[str, str] = Field(default_factory=dict)
 
 
 class IntakeReference(BaseModel):

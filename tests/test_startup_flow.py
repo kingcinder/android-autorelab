@@ -27,6 +27,26 @@ def _created_session_id(repo_root: Path) -> str:
     return session_paths[-1].stem
 
 
+def _write_running_run(repo_root: Path, workflow: str, run_id: str) -> Path:
+    run_dir = repo_root / "runs" / workflow / run_id
+    (run_dir / "prompts").mkdir(parents=True, exist_ok=True)
+    payload = {
+        "run_id": run_id,
+        "workflow": workflow,
+        "status": "running",
+        "stage": "agency_director",
+        "profile": "deep",
+        "input_path": str(repo_root / "config"),
+        "output_root": str(run_dir),
+        "created_at": utc_now(),
+        "updated_at": utc_now(),
+        "model_overrides": {},
+        "source_type": "saved_project",
+    }
+    (run_dir / "run.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return run_dir
+
+
 def test_startup_splash_appears_before_run_ledger(tmp_path: Path) -> None:
     repo_root = _repo_fixture(tmp_path)
     client = TestClient(create_app(repo_root, workflow="default"))
@@ -184,6 +204,124 @@ def test_live_endpoint_and_operator_console_are_available(tmp_path: Path, monkey
     live_after = client.get(f"/api/runs/agency/{run_id}/live")
     assert live_after.status_code == 200
     assert live_after.json()["console_history"][-1]["prompt"] == "Please focus on bootloader policy drift."
+
+    with client.stream("GET", f"/api/runs/agency/{run_id}/events") as stream_response:
+        assert stream_response.status_code == 200
+        chunks = list(stream_response.iter_text())
+    assert any('"workflow": "agency"' in chunk for chunk in chunks)
+
+
+def test_streaming_console_endpoint_returns_deltas(tmp_path: Path, monkeypatch) -> None:
+    repo_root = _repo_fixture(tmp_path)
+    reference = repo_root / "references" / "session.json"
+    reference.parent.mkdir(parents=True)
+    reference.write_text("sample", encoding="utf-8")
+    client = TestClient(create_app(repo_root, workflow="default"))
+    client.get(
+        "/intake/create",
+        params={
+            "source_type": "reference_file_set",
+            "reference_paths": str(reference),
+            "acquisition_notes": "interactive stream check",
+        },
+    )
+    session_id = _created_session_id(repo_root)
+    client.get(
+        "/start",
+        params={"session_id": session_id, "workflow_name": "agency"},
+        follow_redirects=True,
+    )
+    run_dir = sorted((repo_root / "runs" / "agency").iterdir())[0]
+    run_id = run_dir.name
+
+    def fake_stream_chat_text(self: ModelGateway, *, prompt: str, model=None, role="planner", system_prompt="", temperature=0.0, max_tokens=0, timeout=0, save_guidance=False):
+        self._log_console_exchange(
+            {
+                "recorded_at": utc_now(),
+                "model": model or "stub-model",
+                "role": role,
+                "prompt": prompt,
+                "response": "Streamed reply",
+                "save_guidance": save_guidance,
+            }
+        )
+        yield {"event": "start", "model": model or "stub-model", "recorded_at": utc_now()}
+        yield {"event": "delta", "text": "Streamed "}
+        yield {"event": "delta", "text": "reply"}
+        yield {"event": "final", "model": model or "stub-model", "recorded_at": utc_now(), "response": "Streamed reply"}
+
+    monkeypatch.setattr(ModelGateway, "stream_chat_text", fake_stream_chat_text)
+    with client.stream(
+        "POST",
+        f"/api/runs/agency/{run_id}/console/stream",
+        json={"prompt": "Stream this answer.", "save_guidance": False},
+    ) as response:
+        assert response.status_code == 200
+        body = "".join(response.iter_text())
+    assert '"event": "delta"' in body
+    assert '"response": "Streamed reply"' in body
+
+
+def test_running_single_lane_console_uses_active_model(tmp_path: Path, monkeypatch) -> None:
+    repo_root = _repo_fixture(tmp_path)
+    run_dir = _write_running_run(repo_root, "agency", "agency-live")
+    client = TestClient(create_app(repo_root, workflow="default"))
+
+    class FakeRouterClient:
+        def __init__(self, current) -> None:
+            assert current.workflow == "agency"
+
+        def active_models(self) -> list[str]:
+            return ["loaded-agency-model"]
+
+    def fake_chat_text(self: ModelGateway, *, prompt: str, model=None, role="planner", system_prompt="", temperature=0.0, max_tokens=0, timeout=0, save_guidance=False):
+        assert model == "loaded-agency-model"
+        self._log_console_exchange(
+            {
+                "recorded_at": utc_now(),
+                "model": model,
+                "role": role,
+                "prompt": prompt,
+                "response": "Shared active model reply",
+                "save_guidance": save_guidance,
+            }
+        )
+        return {"model": model, "response": "Shared active model reply", "recorded_at": utc_now()}
+
+    monkeypatch.setattr("arelab.ui.RouterClient", FakeRouterClient)
+    monkeypatch.setattr(ModelGateway, "chat_text", fake_chat_text)
+
+    response = client.post(
+        "/api/runs/agency/agency-live/console",
+        json={"prompt": "Use the active model for this running run."},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["model"] == "loaded-agency-model"
+    assert run_dir.joinpath("prompts", "operator-console.jsonl").exists()
+
+
+def test_running_single_lane_console_rejects_conflicting_model_override(tmp_path: Path, monkeypatch) -> None:
+    repo_root = _repo_fixture(tmp_path)
+    _write_running_run(repo_root, "agency", "agency-live")
+    client = TestClient(create_app(repo_root, workflow="default"))
+
+    class FakeRouterClient:
+        def __init__(self, current) -> None:
+            assert current.workflow == "agency"
+
+        def active_models(self) -> list[str]:
+            return ["loaded-agency-model"]
+
+    monkeypatch.setattr("arelab.ui.RouterClient", FakeRouterClient)
+
+    response = client.post(
+        "/api/runs/agency/agency-live/console",
+        json={"prompt": "Switch models mid-run.", "model": "other-model"},
+    )
+
+    assert response.status_code == 409
+    assert "single active model" in response.json()["detail"]
 
 
 def test_startup_splash_skips_incomplete_run_metadata(tmp_path: Path) -> None:

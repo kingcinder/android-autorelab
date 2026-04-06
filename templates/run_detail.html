@@ -183,7 +183,7 @@
           <span>Also save this as run guidance for later model stages</span>
         </label>
         <div class="form-actions">
-          <button type="submit">Send to model</button>
+          <button type="submit" id="console-submit">Send to model</button>
         </div>
       </form>
     </article>
@@ -207,7 +207,9 @@
 <script>
 (() => {
   const runPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/live";
+  const runEventsPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/events";
   const consolePath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/console";
+  const consoleStreamPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/console/stream";
   const modelsPath = "/api/runs/{{ run.workflow }}/{{ run.run_id }}/models";
   const statusEl = document.getElementById("live-status");
   const stageEl = document.getElementById("live-stage");
@@ -219,6 +221,7 @@
   const historyEl = document.getElementById("console-history");
   const form = document.getElementById("console-form");
   const consoleModelEl = document.getElementById("console-model");
+  const consoleSubmitEl = document.getElementById("console-submit");
 
   function humanize(value) {
     return (value || "unknown").replace(/[_-]+/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
@@ -238,10 +241,7 @@
     `).join("");
   }
 
-  async function refreshLive() {
-    const response = await fetch(runPath, { headers: { "Accept": "application/json" } });
-    if (!response.ok) return;
-    const payload = await response.json();
+  function applyLivePayload(payload) {
     statusEl.textContent = humanize(payload.run.status_label || payload.run.status);
     stageEl.textContent = humanize(payload.run.stage_label || payload.run.stage);
     logLabelEl.textContent = payload.latest_log.label || "No tool output yet";
@@ -251,6 +251,13 @@
     checkpointsEl.innerHTML = (payload.checkpoints.length ? payload.checkpoints : ["No checkpoints recorded yet."])
       .map((item) => `<li>${item}</li>`).join("");
     renderHistory(payload.console_history || []);
+  }
+
+  async function refreshLive() {
+    const response = await fetch(runPath, { headers: { "Accept": "application/json" } });
+    if (!response.ok) return;
+    const payload = await response.json();
+    applyLivePayload(payload);
   }
 
   async function refreshModels() {
@@ -275,7 +282,18 @@
     if (!prompt) return;
     const model = document.getElementById("console-model").value;
     const saveGuidance = document.getElementById("console-guidance").checked;
-    const response = await fetch(consolePath, {
+    consoleSubmitEl.disabled = true;
+    consoleSubmitEl.textContent = "Streaming...";
+    const entry = document.createElement("article");
+    entry.className = "console-entry";
+    entry.innerHTML = `
+      <p><strong>${model || "configured planner"}</strong> · streaming</p>
+      <p>${prompt}</p>
+      <pre class="terminal-output" data-stream-body></pre>
+    `;
+    historyEl.prepend(entry);
+    const streamBody = entry.querySelector("[data-stream-body]");
+    const response = await fetch(consoleStreamPath, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt, model, save_guidance: saveGuidance }),
@@ -283,16 +301,59 @@
     if (!response.ok) {
       const payload = await response.json().catch(() => ({ message: "Model console request failed." }));
       historyEl.innerHTML = `<p class="empty-note">${payload.message || payload.error || "Model console request failed."}</p>` + historyEl.innerHTML;
+      consoleSubmitEl.disabled = false;
+      consoleSubmitEl.textContent = "Send to model";
       return;
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const payload = JSON.parse(line);
+        if (payload.event === "delta") {
+          streamBody.textContent += payload.text || "";
+        } else if (payload.event === "final") {
+          streamBody.textContent = payload.response || streamBody.textContent;
+          const header = entry.querySelector("strong");
+          if (header && payload.model) {
+            header.textContent = payload.model;
+          }
+        } else if (payload.event === "error") {
+          streamBody.textContent += `\n[error] ${payload.message || "Streaming failed."}`;
+        }
+      }
     }
     document.getElementById("console-prompt").value = "";
     document.getElementById("console-guidance").checked = false;
+    consoleSubmitEl.disabled = false;
+    consoleSubmitEl.textContent = "Send to model";
     await refreshLive();
   });
 
   refreshModels();
   refreshLive();
-  setInterval(refreshLive, 2500);
+  if (window.EventSource) {
+    const source = new EventSource(runEventsPath);
+    source.onmessage = (event) => {
+      try {
+        applyLivePayload(JSON.parse(event.data));
+      } catch (error) {
+      }
+    };
+    source.onerror = () => {
+      source.close();
+      setInterval(refreshLive, 2500);
+    };
+  } else {
+    setInterval(refreshLive, 2500);
+  }
 })();
 </script>
 {% endblock %}

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import threading
 import time
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -15,8 +16,9 @@ from arelab.config import Settings
 from arelab.intake import IntakeSessionStore, build_intake_session, session_anchor_path
 from arelab.model_gateway import ModelGateway
 from arelab.pipeline import execute_prepared_run, prepare_run
+from arelab.router import RouterClient
 from arelab.store import ArtifactStore
-from arelab.util import tail_text
+from arelab.util import tail_text, truncate_text
 from arelab.workflows import load_workflow
 
 
@@ -213,6 +215,56 @@ def create_app(repo_root: Path, workflow: str = "default") -> FastAPI:
             "console_history": console_history(run_dir),
             "report_excerpt": tail_text(report_path, lines=40) if report_path.exists() else "",
         }
+
+    def console_system_prompt(run_dir: Path, metadata: dict[str, object]) -> str:
+        checkpoints = sorted(path.name for path in (run_dir / "checkpoints").glob("*.json"))[-6:]
+        latest = latest_live_log(run_dir)
+        report_excerpt = tail_text(run_dir / "reports" / "report.md", lines=24)
+        return (
+            "You are the realtime operator console for an authorized Android analysis run. "
+            "Answer questions using the active run context when possible. "
+            "If context is insufficient, say exactly what is missing. "
+            "Do not provide exploit steps.\n\n"
+            f"Workflow: {metadata.get('workflow')}\n"
+            f"Status: {metadata.get('status')}\n"
+            f"Stage: {metadata.get('stage')}\n"
+            f"Source type: {metadata.get('source_type')}\n"
+            f"Recent checkpoints: {', '.join(checkpoints) if checkpoints else 'none'}\n\n"
+            f"Recent tool output:\n{truncate_text(latest.get('stdout', ''), 2500)}\n\n"
+            f"Recent errors:\n{truncate_text(latest.get('stderr', ''), 1200)}\n\n"
+            f"Report excerpt:\n{truncate_text(report_excerpt, 2500)}"
+        )
+
+    def resolve_console_model(
+        workflow_name: str,
+        metadata: dict[str, object],
+        run_settings: Settings,
+        requested_model: str | None,
+    ) -> str | None:
+        router = run_settings.workflow_config.get("router", {}) or {}
+        single_lane = (
+            bool(run_settings.policies.get("single_heavy_model"))
+            or int(router.get("models_max", 1) or 1) <= 1
+            or int(router.get("concurrency", 1) or 1) <= 1
+        )
+        if str(metadata.get("status")) != "running" or not single_lane:
+            return requested_model
+        active_model: str | None = None
+        try:
+            active_models = RouterClient(run_settings).active_models()
+            if active_models:
+                active_model = str(active_models[0])
+        except Exception:  # noqa: BLE001
+            active_model = None
+        if requested_model and active_model and requested_model != active_model:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"{workflow_name} is using a single active model right now. "
+                    f"Leave the console model blank or use {active_model} until this run completes."
+                ),
+            )
+        return active_model or requested_model
 
     @app.get("/", response_class=HTMLResponse)
     async def splash(request: Request) -> HTMLResponse:
@@ -479,6 +531,28 @@ def create_app(repo_root: Path, workflow: str = "default") -> FastAPI:
     async def run_live(workflow_name: str, run_id: str) -> JSONResponse:
         return JSONResponse(live_payload(workflow_name, run_id))
 
+    @app.get("/api/runs/{workflow_name}/{run_id}/events")
+    async def run_events(workflow_name: str, run_id: str, request: Request) -> StreamingResponse:
+        async def event_stream():
+            last_payload = ""
+            while True:
+                payload = json.dumps(live_payload(workflow_name, run_id))
+                if payload != last_payload:
+                    yield f"data: {payload}\n\n"
+                    last_payload = payload
+                current = json.loads(payload)
+                if current["run"]["status"] in {"completed", "failed"}:
+                    break
+                if await request.is_disconnected():
+                    break
+                await asyncio.sleep(1)
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+
     @app.get("/api/runs/{workflow_name}/{run_id}/models", response_class=JSONResponse)
     async def run_models(workflow_name: str, run_id: str) -> JSONResponse:
         run_dir, metadata = resolve_run(workflow_name, run_id)
@@ -537,12 +611,14 @@ def create_app(repo_root: Path, workflow: str = "default") -> FastAPI:
         run_settings = Settings.load(repo_root, workflow=workflow_name)
         for role, model in metadata.get("model_overrides", {}).items():
             run_settings.model_pins[str(role)] = str(model)
+        selected_model = resolve_console_model(workflow_name, metadata, run_settings, selected_model)
         gateway = ModelGateway(run_settings, run_dir / "prompts")
         try:
             response = gateway.chat_text(
                 prompt=prompt,
                 model=selected_model,
                 role="planner",
+                system_prompt=console_system_prompt(run_dir, metadata),
                 save_guidance=save_guidance,
             )
         except Exception as exc:  # noqa: BLE001
@@ -554,5 +630,50 @@ def create_app(repo_root: Path, workflow: str = "default") -> FastAPI:
                 status_code=503,
             )
         return JSONResponse(response)
+
+    @app.post("/api/runs/{workflow_name}/{run_id}/console/stream", response_model=None)
+    async def run_console_stream(workflow_name: str, run_id: str, request: Request):
+        run_dir, metadata = resolve_run(workflow_name, run_id)
+        payload = await request.json()
+        prompt = str(payload.get("prompt", "")).strip()
+        if not prompt:
+            raise HTTPException(status_code=400, detail="prompt is required")
+        selected_model = str(payload.get("model", "")).strip() or None
+        save_guidance = bool(payload.get("save_guidance", False))
+        run_settings = Settings.load(repo_root, workflow=workflow_name)
+        for role, model in metadata.get("model_overrides", {}).items():
+            run_settings.model_pins[str(role)] = str(model)
+        selected_model = resolve_console_model(workflow_name, metadata, run_settings, selected_model)
+        gateway = ModelGateway(run_settings, run_dir / "prompts")
+
+        try:
+            iterator = gateway.stream_chat_text(
+                prompt=prompt,
+                model=selected_model,
+                role="planner",
+                system_prompt=console_system_prompt(run_dir, metadata),
+                save_guidance=save_guidance,
+            )
+        except Exception as exc:  # noqa: BLE001
+            return JSONResponse(
+                {
+                    "error": str(exc),
+                    "message": "The model console could not reach a usable model backend for this run.",
+                },
+                status_code=503,
+            )
+
+        def ndjson_stream():
+            try:
+                for item in iterator:
+                    yield json.dumps(item) + "\n"
+            except Exception as exc:  # noqa: BLE001
+                yield json.dumps({"event": "error", "message": str(exc)}) + "\n"
+
+        return StreamingResponse(
+            ndjson_stream(),
+            media_type="application/x-ndjson",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
 
     return app

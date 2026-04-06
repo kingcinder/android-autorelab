@@ -103,3 +103,39 @@ def test_chat_text_ensures_router_ready_and_logs_exchange(tmp_path: Path, monkey
     assert ("load", "qwen2.5-coder-1.5b-instruct-q6_k") in router_calls
     assert ("warm", "qwen2.5-coder-1.5b-instruct-q6_k") in router_calls
     assert gateway.console_log_path.exists()
+
+
+def test_stream_chat_text_yields_deltas_and_final(tmp_path: Path, monkeypatch) -> None:
+    settings = _settings_fixture(tmp_path)
+    prompts_dir = tmp_path / "prompts"
+    calls: list[str] = []
+
+    def fake_ensure(current: Settings, *, timeout: int = 30) -> None:
+        assert current.workflow == "agency"
+        calls.append("ensure")
+
+    class FakeRouterClient:
+        def __init__(self, current: Settings) -> None:
+            assert current.workflow == "agency"
+
+        def active_models(self) -> list[str]:
+            return ["qwen2.5-coder-1.5b-instruct-q6_k"]
+
+    def fake_stream_request(self: ModelGateway, path: str, payload, *, timeout: int = 90):
+        assert path == "/chat/completions"
+        yield 'data: {"choices":[{"delta":{"content":"Hello"}}]}'
+        yield 'data: {"choices":[{"delta":{"content":" world"}}]}'
+        yield "data: [DONE]"
+
+    monkeypatch.setattr("arelab.model_gateway.ensure_router_ready", fake_ensure)
+    monkeypatch.setattr("arelab.model_gateway.RouterClient", FakeRouterClient)
+    monkeypatch.setattr(ModelGateway, "_stream_request", fake_stream_request)
+
+    gateway = ModelGateway(settings, prompts_dir)
+    events = list(gateway.stream_chat_text(prompt="Say hello."))
+
+    assert events[0]["event"] == "start"
+    assert [item["text"] for item in events if item["event"] == "delta"] == ["Hello", " world"]
+    assert events[-1]["event"] == "final"
+    assert events[-1]["response"] == "Hello world"
+    assert calls == ["ensure", "ensure"]
